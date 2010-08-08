@@ -840,6 +840,7 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
    
    onCreateRecordResult: function(data){
       // function to process the data from the server when a createRecord call has been made to the server
+      console.log('ONR onCreateRecordResult called with data: ' + JSON.stringify(data));
       var createRecordResult = data.createRecordResult;
       var requestCacheKey = createRecordResult.returnData.requestCacheKey;
       var requestCache = this._requestCache[requestCacheKey];

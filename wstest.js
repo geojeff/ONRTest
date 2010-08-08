@@ -116,7 +116,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     else {
       console.log('BIRD');
       var bird = rec.get('bird');
-      console.log(bird.get('commonName'));
+      if (bird) console.log(bird.get('commonName'));
     }
   },
 
