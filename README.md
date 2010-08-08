@@ -31,31 +31,17 @@ OrionNodeRiak
 
 In one terminal window...
 
-Configure a server.js file to run as:
+Configure a server.js file and run as:
 
     sudo node server.js
 
-For example:
+    You may add a users file, as an authModule, addin a test user
+    and password to users.js, such as:
 
-   var sys = require('sys');
-   require('./OrionServer');
-   require('./OrionRiakStore');
-   
-   var birdAppServer = OrionServer.create({
-      port: 8080,
-      store: OrionRiakStore.create(),
-      authModule: OrionFileAuth.create({ fileName: 'users'})
-   });
-   
-   birdAppServer.start();
-
-You notice a reference to a users file, as an authModule. You may add a test user
-and password to users.js, as:
-
-    exports.users = {
-     'root': { passwd: 'password', isRoot: true},
-     'test': { passwd: 'test', isRoot: false }
-    };
+        exports.users = {
+         'root': { passwd: 'password', isRoot: true},
+         'test': { passwd: 'test', isRoot: false }
+        };
 
 Riak
 ----
@@ -68,11 +54,11 @@ For running on Mac OS X, at least, edit the ../bin/riak file of Riak to add a li
 
     just after the " RUNNER_USER=" line at about line 10.
 
-This increases the number of processes, but requires sudo, so Riak is started as:
+    This increases the number of processes, but requires sudo, so Riak is started as:
 
-    sudo ./riak console
+        sudo ./riak console
 
-to see output to the screen. Control-g, followed by q, will exit.
+    to see output to the screen. Control-g, followed by q, will exit.
 
 ONRTest
 -------
