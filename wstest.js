@@ -1,29 +1,39 @@
-// ONRTest is run within a browser environment. The ONRTest directory contains:
-//
-//     index.html
-//     OrionNodeRiakDataSource.js
-//     wstest.js (this file)
-//     sc/
-//       query.js
-//       runtime/
-//       foundation/
-//       datasource/
-//
-// The parts of Sproutcore needed to simulated SC apps are contained within the sc directory.
-// These have been modified to run within a browser environment by:
-//
-//     - replacing all calls of sc_super(); with the "magic" equivalent:
-//           arguments.callee.base.apply(this, arguments);
-//     - including javascript dependencies in necessary order of script tags within index.html
-//
-
 /*globals module test ok isObj equals expects Namespace */
 
+// ..............................................................................
+//
+// Origin of the Test Data
+//
+// This test uses data about a few birds, their official abbreviations, and bird
+// feeder observations for each bird in several regions of the United States.
+//
+// Bird feeder observation data comes from Cornell University's Project Feeder Watch
+// (http://watch.birds.cornell.edu/PFW/ExploreData), with data for the top 25 birds in
+// two regions, the south-central and southeastern United States for the 2008-2009
+// season.
+//
+// Visit this link to see a map, and click for the regions to see the data in list form:
+//
+//     http://www.birds.cornell.edu/pfw/DataRetrieval/Top25/2008-2009/Top25.htm
+//
+// Abbreviation codes for the birds involved were looked up at birdpop.org, which 
+// has a dbf file with abbreviations:
+// 
+//   http://www.birdpop.org/AlphaCodes.htm
+//
+//   For each bird, there is a four-letter abbreviation, a six-letter abbreviation, 
+//   and the same common name that is in the feederObservations.  These abbreviations 
+//   could just as well have been stored in the bird data, seen in createBirds(),
+//   but are kept separate here for testing purposes.
+//
+// ..............................................................................
+
+// ONRTest is used as a global container.
 var ONRTest = SC.Object.create();
 
-// This is here because if ONRTest.BirdApp = SC.Object.extend(... is used,
-// the datasource will not instantiate properly. But if we use this base
-// object, somehow it works. :)
+// ONRTest.BirdAppBase is here because if ONRTest.BirdApp = SC.Object.extend(... 
+// is used, the datasource will not instantiate properly. But if we use this base
+// object, the instantiation works...
 ONRTest.BirdAppBase = SC.Object.extend({
   NAMESPACE: null,
   models: null,
@@ -36,6 +46,7 @@ ONRTest.BirdAppBase = SC.Object.extend({
   finish: null
 });
 
+// Our simulated Sproutcore app, ONRTest.BirdApp:
 ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   // Simulating NAMESPACE for an SC app, set in core.js
   NAMESPACE: 'BirdApp',
@@ -251,7 +262,14 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   },
          
   test: function(){
-    // Provide a callback finish() for doing tear-down.
+    //
+    // Need to provide a callback to finish() for doing tear-down....
+    //
+    // Data for birds, feeder observations, and abbreviations were
+    // put into hashes to allow convenient looping to do the calls
+    // to controllers to fire createRecord requests, and other
+    // data processing.
+    //
     var data = [
       {commonName: "Eastern Towhee", 
        taxonomy: {genus: "Pipilo", species: "erythrophthalmus"},
@@ -289,6 +307,16 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                              feederwatchAbundanceIndex: 0.14}],
        abbreviations: [{type: 'fourLetter', text: "RCKI"}, 
                        {type: 'sixLetter', text: "REGCAL"}]}];
+    //
+    // Calls are made in this loop to the controllers, to the
+    // respective addFeederObservation(), addAbbreviation, and
+    // addBird() functions, which make createRecord requests.
+    //
+    // As these requests are made, references to the records
+    // are made so that relations can be set up as we go.
+    //
+    //     Note the .get() and pushObject() calls.
+    //
     for (var i=0,len=data.length; i<len; i++){
       var commonName         = data[i]['commonName'];
       var taxonomy           = data[i]['taxonomy'];
