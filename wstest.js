@@ -1,39 +1,41 @@
 /*globals module test ok isObj equals expects Namespace */
 
-// ..............................................................................
+// ............................................................................
 //
 // Origin of the Test Data
 //
-// This test uses data about a few birds, their official abbreviations, and bird
-// feeder observations for each bird in several regions of the United States.
+// This test uses data about a few birds, their official abbreviations, and 
+// bird feeder observations for each bird in several regions of the United 
+// States.
 //
-// Bird feeder observation data comes from Cornell University's Project Feeder Watch
-// (http://watch.birds.cornell.edu/PFW/ExploreData), with data for the top 25 birds in
-// two regions, the south-central and southeastern United States for the 2008-2009
-// season.
+// Bird feeder observation data comes from Cornell University's Project Feeder 
+// Watch (http://watch.birds.cornell.edu/PFW/ExploreData), with data for the 
+// top 25 birds in two regions, the south-central and southeastern United 
+// States for the 2008-2009 season.
 //
-// Visit this link to see a map, and click for the regions to see the data in list form:
+// Visit this link to see a map, and click for the regions to see the data in 
+// list form:
 //
-//     http://www.birds.cornell.edu/pfw/DataRetrieval/Top25/2008-2009/Top25.htm
+//   http://www.birds.cornell.edu/pfw/DataRetrieval/Top25/2008-2009/Top25.htm
 //
-// Abbreviation codes for the birds involved were looked up at birdpop.org, which 
-// has a dbf file with abbreviations:
+// Abbreviation codes for the birds involved were looked up at birdpop.org, 
+// which has a dbf file with abbreviations:
 // 
 //   http://www.birdpop.org/AlphaCodes.htm
 //
-//   For each bird, there is a four-letter abbreviation, a six-letter abbreviation, 
-//   and the same common name that is in the feederObservations.  These abbreviations 
-//   could just as well have been stored in the bird data, seen in createBirds(),
-//   but are kept separate here for testing purposes.
+//   For each bird, there is a four-letter abbreviation, a six-letter 
+//   abbreviation, and the same common name that is in the feederObservations.  
+//   These abbreviations could just as well have been stored in the bird data, 
+//   seen in createBirds(), but are kept separate here for testing purposes.
 //
-// ..............................................................................
+// ............................................................................
 
 // ONRTest is used as a global container.
 var ONRTest = SC.Object.create();
 
-// ONRTest.BirdAppBase is here because if ONRTest.BirdApp = SC.Object.extend(... 
-// is used, the datasource will not instantiate properly. But if we use this base
-// object, the instantiation works...
+// ONRTest.BirdAppBase is here because if ONRTest.BirdApp = SC.Object.extend(.. 
+// is used, the datasource will not instantiate properly. But if we use this 
+// base object, the instantiation works...
 ONRTest.BirdAppBase = SC.Object.extend({
   NAMESPACE: null,
   models: null,
@@ -79,16 +81,16 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   }),
 
   FeederObservation: SC.Record.extend({
-    bucket:                      'feederObservation',
-    season:                      SC.Record.attr(String),
-    region:                      SC.Record.attr(String),
-    rank:                        SC.Record.attr(Number),
-    percentageOfFeedersVisited:  SC.Record.attr(Number),
-    meanGroupSizeWhenSeen:       SC.Record.attr(Number),
-    feederwatchAbundanceIndex:   SC.Record.attr(Number),
-    bird:                        SC.Record.toOne("ONRTest.BirdApp.Bird", 
-                                                 { inverse: "feederObservations", 
-                                                   isMaster: NO }),
+    bucket:                     'feederObservation',
+    season:                     SC.Record.attr(String),
+    region:                     SC.Record.attr(String),
+    rank:                       SC.Record.attr(Number),
+    percentageOfFeedersVisited: SC.Record.attr(Number),
+    meanGroupSizeWhenSeen:      SC.Record.attr(Number),
+    feederwatchAbundanceIndex:  SC.Record.attr(Number),
+    bird:                       SC.Record.toOne("ONRTest.BirdApp.Bird", 
+                                                { inverse: "feederObservations",
+                                                  isMaster: NO }),
 
     // A handy callback firing on status === READY_CLEAN
     _statusObs: function(){ 
@@ -171,7 +173,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
   start: function(){
     // 
-    // This function is called by ONRTest.start(), which is called on loading of index.html.
+    // This function is called by ONRTest.start(), which is called on loading 
+    // of index.html.
     //
     // At this point:
     //
@@ -192,7 +195,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     this.models['feederObservation'] = this.FeederObservation();
     this.models['bird'] = this.Bird();
 
-    // Create the data source if it doesn't exist already. (FORCE instantiation)
+    // Create the data source if it doesn't exist already. (FORCE)
     var initDS = this.store._getDataSource(); 
 
     // Call auth. The data source contains a callback to the test() function.
@@ -200,7 +203,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       ONRTest.BirdApp.store.dataSource.authRequest("test","test");
     });
 
-    // Create queries for later use, as would be done in core.js of a Sproutcore app.
+    // Create queries for later use, as would be done in core.js of a 
+    // Sproutcore app.
     this.queries['abbreviation'] = {};
     this.queries['abbreviation']['all'] = SC.Query.create({ recordType: ONRTest.BirdApp.Abbreviation});
 
