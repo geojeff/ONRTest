@@ -189,9 +189,9 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     
     this.queries['bird'] = {};
     this.queries['bird']['all'] = SC.Query.create({ recordType: ONRTest.BirdApp.Bird});
-    this.queries['bird']['Robin'] = SC.Query.create({ 
+    this.queries['bird']['Mockingbird'] = SC.Query.create({ 
       conditions: "genus = {gn_ltrs} AND commonName CONTAINS {ltrs}", 
-      parameters: { gn_ltrs:"Turdus", ltrs:"Robin"},
+      parameters: { gn_ltrs:"Mimus", ltrs:"Mockingbird"},
       recordType: ONRTest.BirdApp.Bird});
     this.queries['bird']['Robin'] = SC.Query.create({ 
       conditions: "genus = {gn_ltrs} AND commonName CONTAINS {ltrs}", 
