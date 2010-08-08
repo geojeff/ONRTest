@@ -60,6 +60,26 @@ For running on Mac OS X, at least, edit the ../bin/riak file of Riak to add a li
 
     to see output to the screen. Control-g, followed by q, will exit.
 
+If you would like to install innostore, which we found does speed up things significantly,
+you would follow these steps, depending on version:
+
+    wget http://downloads.basho.com/innostore/innostore-1.0.0/innostore-1.0.0.tar.gz
+    tar xvfz innostore-1.0.0.tar.gz 
+    cd innostore-1.0.0
+    make
+    ./rebar install target=./rebar install target=$RIAK/lib
+    ./rebar install target=/Users/geojeff/Development/riak-0.11.0-osx-x86_64/lib
+    cd ..
+    cd riak-0.11.0-osx-x86_64/
+    cd etc
+    vi app.config
+    
+        Add this within the Riak KV config session, as per Innostore README,
+
+        {storage_backend, riak_kv_innostore_backend},
+
+A nice thing about using Innostore is the way there are files for each bucket.
+
 ONRTest
 -------
 
