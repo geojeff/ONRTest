@@ -1,6 +1,8 @@
 Introduction
 ============
 
+ONRTest is a test module to work with Maurits Lamer's [OrionNodeRiak library](http://github.com/mauritslamers/OrionNodeRiak).
+
 ONRTest is run within a browser environment. The ONRTest directory contains:
 
     index.html
@@ -47,7 +49,7 @@ For example:
    
    birdAppServer.start();
 
-You notice a reference to a users file, as an authModule. You may simple add a test user
+You notice a reference to a users file, as an authModule. You may add a test user
 and password to users.js, as:
 
     exports.users = {
