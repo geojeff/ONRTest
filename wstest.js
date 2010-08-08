@@ -66,10 +66,16 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     bucket:       'abbreviation',
     type:  SC.Record.attr(String),
     text:  SC.Record.attr(String),
-    bird:  SC.Record.toOne("ONRTest.BirdApp.Bird", { inverse: "abbreviations", isMaster: NO }),
+    bird:  SC.Record.toOne("ONRTest.BirdApp.Bird", 
+                           { inverse: "abbreviations", isMaster: NO }),
 
     // A handy callback firing on status === READY_CLEAN
-    _statusObs: function(){ var status = this.get('status'); if(status && status === SC.Record.READY_CLEAN) ONRTest.BirdApp.readyCall(this.get('storeKey')); }.observes('status')
+    _statusObs: function(){ 
+      var status = this.get('status'); 
+      if (status && status === SC.Record.READY_CLEAN){ 
+        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
+      }
+    }.observes('status')
   }),
 
   FeederObservation: SC.Record.extend({
@@ -80,10 +86,17 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     percentageOfFeedersVisited:  SC.Record.attr(Number),
     meanGroupSizeWhenSeen:       SC.Record.attr(Number),
     feederwatchAbundanceIndex:   SC.Record.attr(Number),
-    bird:                        SC.Record.toOne("ONRTest.BirdApp.Bird", { inverse: "feederObservations", isMaster: NO }),
+    bird:                        SC.Record.toOne("ONRTest.BirdApp.Bird", 
+                                                 { inverse: "feederObservations", 
+                                                   isMaster: NO }),
 
     // A handy callback firing on status === READY_CLEAN
-    _statusObs: function(){ var status = this.get('status'); if(status && status === SC.Record.READY_CLEAN) ONRTest.BirdApp.readyCall(this.get('storeKey')); }.observes('status')
+    _statusObs: function(){ 
+      var status = this.get('status'); 
+      if (status && status === SC.Record.READY_CLEAN){ 
+        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
+      }
+    }.observes('status')
   }),
 
   Bird: SC.Record.extend({
@@ -98,11 +111,18 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     }.property('genus', 'species').cacheable(),
     
     // relations:
-    abbreviations:      SC.Record.toMany("ONRTest.BirdApp.Abbreviation", { inverse: "bird", isMaster: YES }),
-    feederObservations: SC.Record.toMany("ONRTest.BirdApp.FeederObservation", { inverse: "bird", isMaster: YES }),
+    abbreviations:      SC.Record.toMany("ONRTest.BirdApp.Abbreviation", 
+                                         { inverse: "bird", isMaster: YES }),
+    feederObservations: SC.Record.toMany("ONRTest.BirdApp.FeederObservation", 
+                                         { inverse: "bird", isMaster: YES }),
 
     // A handy callback firing on status === READY_CLEAN
-    _statusObs: function(){ var status = this.get('status'); if(status && status === SC.Record.READY_CLEAN) ONRTest.BirdApp.readyCall(this.get('storeKey')); }.observes('status')
+    _statusObs: function(){ 
+      var status = this.get('status'); 
+      if (status && status === SC.Record.READY_CLEAN){ 
+        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
+      }
+    }.observes('status')
     }),
 
   // readyCall will fire when the status of any record changes to READY_CLEAN.
