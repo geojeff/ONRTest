@@ -31,6 +31,8 @@ OrionNodeRiak
 
 In one terminal window...
 
+Clone the [OrionNodeRiak repository](http://github.com/mauritslamers/OrionNodeRiak).
+
 Configure a server.js file and run as:
 
     sudo node server.js
@@ -42,6 +44,8 @@ Configure a server.js file and run as:
          'root': { passwd: 'password', isRoot: true},
          'test': { passwd: 'test', isRoot: false }
         };
+
+    Add a reference to user.js in server.js, following the ONR example.
 
 Riak
 ----
@@ -78,12 +82,21 @@ you would follow these steps, depending on version:
 
         {storage_backend, riak_kv_innostore_backend},
 
-A nice thing about using Innostore is the way there are files for each bucket.
+A nice thing about using Innostore is the way there are individual files for buckets.
 
 ONRTest
 -------
 
-In a third terminal window, or in an Editor/IDE...
+In a third terminal window...
+
+Copy OrionNodeRiakDataStore.js from your OrionNodeRiak clone to your ONRTest dir.
 
 Edit wstest.js for developing, sometimes index.html for setting dependencies, if needed.
 
+Browser
+-------
+
+Use a recent Safari, Chrome, or other websocket-capable browser, to load index.html,
+which contains <script> tags in the correct order to load dependencies. At the bottom
+of the head section is a call to wstest.start(). Have the javascript console open to
+see messages. (You will also see messages in your OrionNodeRiak terminal window).
