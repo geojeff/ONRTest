@@ -1,7 +1,7 @@
 Introduction
 ============
 
-ONRTest is a test module to work with Maurits Lamer's [OrionNodeRiak library](http://github.com/mauritslamers/OrionNodeRiak).
+ONRTest is a test module to work with Maurits Lamers' [OrionNodeRiak library](http://github.com/mauritslamers/OrionNodeRiak).
 
 ONRTest is run within a browser environment. The ONRTest directory contains:
 
