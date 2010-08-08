@@ -1,0 +1,122 @@
+<html>
+<head>
+<title>websocket test</title>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/core.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/bootstrap/setup_body_class_names.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/bootstrap/system/browser.js"> </script> 
+<script language="JavaScript" type="text/javascript" src="sc/bootstrap/system/loader.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/private/observer_set.js"> </script> 
+<script language="JavaScript" type="text/javascript" src="sc/runtime/mixins/observable.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/enumerator.js"> </script> 
+<script language="JavaScript" type="text/javascript" src="sc/runtime/mixins/enumerable.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/range_observer.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/mixins/array.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/mixins/comparable.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/mixins/copyable.js"> </script>   
+<script language="JavaScript" type="text/javascript" src="sc/runtime/mixins/delegate_support.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/mixins/freezable.js"> </script> 
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/set.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/object.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/private/chain_observer.js"> </script> 
+<script language="JavaScript" type="text/javascript" src="sc/runtime/private/observer_queue.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/protocols/observable_protocol.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/protocols/sparse_array_delegate.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/binding.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/error.js"> </script> 
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/index_set.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/logger.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/run_loop.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/selection_set.js"> </script>
+<script language="JavaScript" type="text/javascript" src="sc/runtime/system/sparse_array.js"> </script>
+<script type="text/javascript" src="sc/datastore/core.js"></script>
+<script type="text/javascript" src="sc/datastore/data_sources/data_source.js"></script>
+<script type="text/javascript" src="sc/datastore/data_sources/cascade.js"></script>
+<script type="text/javascript" src="sc/datastore/models/record.js"></script>
+<script type="text/javascript" src="sc/datastore/data_sources/fixtures.js"></script>
+<script type="text/javascript" src="sc/datastore/debug/json.js"></script>
+<script type="text/javascript" src="sc/datastore/debug/standard_setup.js"></script>
+<script type="text/javascript" src="sc/datastore/fixtures/author_fixtures.js"></script>
+<script type="text/javascript" src="sc/datastore/fixtures/sample.js"></script>
+<script type="text/javascript" src="sc/datastore/models/record_attribute.js"></script>
+<script type="text/javascript" src="sc/datastore/models/fetched_attribute.js"></script>
+<script type="text/javascript" src="sc/datastore/models/many_attribute.js"></script>
+<script type="text/javascript" src="sc/datastore/models/single_attribute.js"></script>
+<script type="text/javascript" src="sc/datastore/system/many_array.js"></script>
+<script type="text/javascript" src="sc/datastore/system/store.js"></script>
+<script type="text/javascript" src="sc/datastore/system/nested_store.js"></script>
+<script type="text/javascript" src="sc/datastore/system/query.js"></script>
+<script type="text/javascript" src="sc/datastore/system/record_array.js"></script>
+<script type="text/javascript" src="sc/foundation/system/locale.js"></script>
+<script type="text/javascript" src="sc/foundation/english.lproj/strings.js"></script>
+<script type="text/javascript" src="sc/foundation/core.js"></script>
+<script type="text/javascript" src="sc/foundation/controllers/controller.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/selection_support.js"></script>
+<script type="text/javascript" src="sc/foundation/controllers/array.js"></script>
+<script type="text/javascript" src="sc/foundation/controllers/object.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/tree_item_content.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/collection_content.js"></script>
+<script type="text/javascript" src="sc/foundation/private/tree_item_observer.js"></script>
+<script type="text/javascript" src="sc/foundation/controllers/tree.js"></script>
+<script type="text/javascript" src="sc/foundation/system/browser.js"></script>
+<script type="text/javascript" src="sc/foundation/system/builder.js"></script>
+<script type="text/javascript" src="sc/foundation/system/core_query.js"></script>
+<script type="text/javascript" src="sc/foundation/system/event.js"></script>
+<script type="text/javascript" src="sc/foundation/system/cursor.js"></script>
+<script type="text/javascript" src="sc/foundation/system/responder.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/string.js"></script>
+<script type="text/javascript" src="sc/foundation/views/view.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/responder_context.js"></script>
+<script type="text/javascript" src="sc/foundation/panes/pane.js"></script>
+<script type="text/javascript" src="sc/foundation/debug/control_test_pane.js"></script>
+<script type="text/javascript" src="sc/foundation/ext/object.js"></script>
+<script type="text/javascript" src="sc/foundation/ext/run_loop.js"></script>
+<script type="text/javascript" src="sc/foundation/license.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/button.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/content_display.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/control.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/editable.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/validatable.js"></script>
+<script type="text/javascript" src="sc/foundation/views/field.js"></script>
+<script type="text/javascript" src="sc/foundation/system/text_selection.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/static_layout.js"></script>
+<script type="text/javascript" src="sc/foundation/views/text_field.js"></script>
+<script type="text/javascript" src="sc/foundation/mixins/inline_text_field.js"></script>
+<script type="text/javascript" src="sc/foundation/protocols/inline_editor_delegate.js"></script>
+<script type="text/javascript" src="sc/foundation/system/application.js"></script>
+<script type="text/javascript" src="sc/foundation/system/benchmark.js"></script>
+<script type="text/javascript" src="sc/foundation/system/bundle.js"></script>
+<script type="text/javascript" src="sc/foundation/system/datetime.js"></script>
+<script type="text/javascript" src="sc/foundation/system/image_cache.js"></script>
+<script type="text/javascript" src="sc/foundation/system/json.js"></script>
+<script type="text/javascript" src="sc/foundation/system/page.js"></script>
+<script type="text/javascript" src="sc/foundation/system/ready.js"></script>
+<script type="text/javascript" src="sc/foundation/system/render_context.js"></script>
+<script type="text/javascript" src="sc/foundation/system/response.js"></script>
+<script type="text/javascript" src="sc/foundation/system/request.js"></script>
+<script type="text/javascript" src="sc/foundation/system/platform.js"></script>
+<script type="text/javascript" src="sc/foundation/system/root_responder.js"></script>
+<script type="text/javascript" src="sc/foundation/system/routes.js"></script>
+<script type="text/javascript" src="sc/foundation/system/time.js"></script>
+<script type="text/javascript" src="sc/foundation/system/timer.js"></script>
+<script type="text/javascript" src="sc/foundation/system/user_defaults.js"></script>
+<script type="text/javascript" src="sc/foundation/system/utils.js"></script>
+<script type="text/javascript" src="sc/foundation/validators/validator.js"></script>
+<script type="text/javascript" src="sc/foundation/validators/credit_card.js"></script>
+<script type="text/javascript" src="sc/foundation/validators/date.js"></script>
+<script type="text/javascript" src="sc/foundation/validators/email.js"></script>
+<script type="text/javascript" src="sc/foundation/validators/not_empty.js"></script>
+<script type="text/javascript" src="sc/foundation/validators/number.js"></script>
+<script type="text/javascript" src="sc/foundation/validators/password.js"></script>
+<script type="text/javascript" src="sc/foundation/views/container.js"></script>
+<script type="text/javascript" src="sc/foundation/views/image.js"></script>
+<script type="text/javascript" src="sc/foundation/views/label.js"></script>
+<script type="text/javascript" src="sc/foundation/panes/main.js"></script> 
+<script language="JavaScript" type="text/javascript" src="OrionNodeRiakDataSource.js"> </script> 
+<script language="JavaScript" type="text/javascript" src="wstest.js"> </script> 
+</head>
+<body onLoad='ONRTest.start();'>
+<p>Geladen!</p>
+<p>Moved dependency up above sc/foundation/panes.pane: sc/foundation/mixiins/responder_context.js</p>
+<p>Added to dependencies: sc/foundation/system/platform.js</p>
+</body>
+</html>
