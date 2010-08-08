@@ -95,7 +95,7 @@ Edit wstest.js for developing, sometimes index.html for setting dependencies, if
 Browser
 -------
 
-Use a recent Safari, Chrome, or other websocket-capable browser, to load index.html,
+Use a recent Safari, Chrome, Firefox, or other websocket-capable browser, to load index.html,
 which contains script tags in the correct order to load dependencies. At the bottom
 of the head section is a call to wstest.start(). Have the javascript console open to
 see messages. (You will also see messages in your OrionNodeRiak terminal window).
