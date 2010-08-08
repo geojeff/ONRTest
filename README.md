@@ -14,7 +14,7 @@ ONRTest is run within a browser environment. The ONRTest directory contains:
       foundation/
       datasource/
 
-The parts of Sproutcore needed to simulated SC apps are contained within the sc directory.
+The parts of Sproutcore needed to simulate SC apps are contained within the sc directory.
 These have been modified to run within a browser environment by:
 
     - replacing all calls of sc_super(); with the "magic" equivalent:
@@ -35,7 +35,7 @@ Configure a server.js file and run as:
 
     sudo node server.js
 
-    You may add a users file, as an authModule, addin a test user
+    You may add a users file, as an authModule, adding a test user
     and password to users.js, such as:
 
         exports.users = {
