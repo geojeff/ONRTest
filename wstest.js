@@ -206,21 +206,29 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     // Create queries for later use, as would be done in core.js of a 
     // Sproutcore app.
     this.queries['abbreviation'] = {};
-    this.queries['abbreviation']['all'] = SC.Query.create({ recordType: ONRTest.BirdApp.Abbreviation});
+    this.queries['abbreviation']['all'] = SC.Query.create({
+      recordType: ONRTest.BirdApp.Abbreviation
+    });
 
     this.queries['feederObservation'] = {};
-    this.queries['feederObservation']['all'] = SC.Query.create({ recordType: ONRTest.BirdApp.FeederObservation});
+    this.queries['feederObservation']['all'] = SC.Query.create({
+      recordType: ONRTest.BirdApp.FeederObservation
+    });
     
     this.queries['bird'] = {};
-    this.queries['bird']['all'] = SC.Query.create({ recordType: ONRTest.BirdApp.Bird});
+    this.queries['bird']['all'] = SC.Query.create({
+      recordType: ONRTest.BirdApp.Bird
+    });
     this.queries['bird']['Mockingbird'] = SC.Query.create({ 
       conditions: "genus = {gn_ltrs} AND commonName CONTAINS {ltrs}", 
       parameters: { gn_ltrs:"Mimus", ltrs:"Mockingbird"},
-      recordType: ONRTest.BirdApp.Bird});
+      recordType: ONRTest.BirdApp.Bird
+    });
     this.queries['bird']['Robin'] = SC.Query.create({ 
       conditions: "genus = {gn_ltrs} AND commonName CONTAINS {ltrs}", 
       parameters: { gn_ltrs:"Turdus", ltrs:"Robin"},
-      recordType: ONRTest.BirdApp.Bird});
+      recordType: ONRTest.BirdApp.Bird
+    });
 
     // Create the controllers.
     this.controllers['feederObservation'] = SC.ArrayController.create({
@@ -287,12 +295,11 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
          
   test: function(){
     //
-    // Need to provide a callback to finish() for doing tear-down....
+    // TODO: Need to provide a callback to finish() for doing tear-down....
     //
     // Data for birds, feeder observations, and abbreviations were
-    // put into hashes to allow convenient looping to do the calls
-    // to controllers to fire createRecord requests, and other
-    // data processing.
+    // put into hashes to allow convenient creation of data by looping 
+    // through the calls to controllers.
     //
     var data = [
       {commonName: "Eastern Towhee", 
@@ -307,7 +314,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                        {type: 'sixLetter', text: "PIPERP"}]},
       {commonName: "House Finch", 
        taxonomy: {genus: "Carpodacus", species: "mexicanus"},
-       feederObservations: [{season: "2008-2009", 
+       feederObservations: [{season: "2008-2009",        // Two for House Finch
                              region: "Southeastern US", 
                              rank: 8, 
                              percentageOfFeedersVisited: 74.17, 
@@ -354,7 +361,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       var bird = this.controllers['bird'].addBird({
         commonName: commonName,
         genus:      taxonomy.genus,
-        species:    taxonomy.species});
+        species:    taxonomy.species
+      });
       for (var j=0,len2=feederObservations.length; j<len2; j++){
         var feederObservation = this.controllers['feederObservation'].addFeederObservation({
           season:                     feederObservations[j].season,
