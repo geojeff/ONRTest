@@ -73,7 +73,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     // A callback firing on status === READY_CLEAN
     _statusObs: function(){ 
       var status = this.get('status'); 
-      if (status && status === SC.Record.READY_CLEAN){ 
+      if (status & SC.Record.READY_CLEAN){ 
         ONRTest.BirdApp.readyCall(this.get('storeKey')); 
       }
     }.observes('status')
@@ -433,16 +433,20 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   // Tear-down
   //
   finish: function(){
-    console.log('FINISHED');
-    console.log('FINISHED');
-    console.log('FINISHED');
-  //  var storedRecords = this.store.find(this.queries['bird']['all']);
-  //  storedRecords.pushObjects(this.store.find(this.queries['feederObservation']['all']));
-  //  storedRecords.pushObjects(this.store.find(this.queries['abbreviation']['all']));
-  //  for (var i=0,len=storedRecords.length; i<len; i++){
-  //    //this.send({deleteRecord: storedRecords[i]});
-  //    this.store.deleteRecord(storedRecords[i]);
-  //  }
+    console.log('FINISHING');
+    var storedRecords = this.store.find(this.queries['bird']['all']);
+    for (var i=0,len=storedRecords.length; i<len; i++){
+      console.log('found BIRD : ' + JSON.stringify(storedRecords[i].get('storeKey')));
+    }
+    storedRecords = this.store.find(this.queries['feederObservation']['all']);
+    for (i=0,len=storedRecords.length; i<len; i++){
+      console.log('found FO : ' + JSON.stringify(storedRecords[i].get('storeKey')));
+    }
+    storedRecords = this.store.find(this.queries['abbreviation']['all']);
+    for (i=0,len=storedRecords.length; i<len; i++){
+      console.log('found ABBR: ' + JSON.stringify(storedRecords[i].get('storeKey')));
+      //this.store.deleteRecord(storedRecords[i]);
+    }
   }
 });
 
