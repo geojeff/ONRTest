@@ -73,7 +73,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     // A callback firing on status === READY_CLEAN
     _statusObs: function(){ 
       var status = this.get('status'); 
-      if (status & SC.Record.READY_CLEAN){ 
+      if (status && status === SC.Record.READY_CLEAN){ 
         ONRTest.BirdApp.readyCall(this.get('storeKey')); 
       }
     }.observes('status')
