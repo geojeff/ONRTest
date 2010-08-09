@@ -332,12 +332,16 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
        abbreviations: [{type: 'fourLetter', text: "RCKI"}, 
                        {type: 'sixLetter', text: "REGCAL"}]}];
     //
-    // Calls are made in this loop to the controllers, to the
-    // respective addFeederObservation(), addAbbreviation, and
-    // addBird() functions, which make createRecord requests.
+    // Each item in the data above contains information about a single
+    // bird.  Calls are made to the controllers, to the respective 
+    // addBird(), addFeederObservation(), and addAbbreviation() functions, 
+    // which make createRecord requests.
     //
-    // As these requests are made, references to the records
-    // are made so that relations can be set up as we go.
+    // In the models, Bird is the master, having toMany relations with
+    // the Abbreviation and FeederObservation.
+    //
+    // As these createRecord requests are made, relations are set up by
+    // getting the property in each inverse relation, and setting records.
     //
     //     Note the .get() and pushObject() calls.
     //
@@ -358,14 +362,18 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           rank:                       feederObservations[j].rank,
           percentageOfFeedersVisited: feederObservations[j].percentageOfFeedersVisited,
           meanGroupSizeWhenSeen:      feederObservations[j].meanGroupSizeWhenSeen,
-          feederwatchAbundanceIndex:  feederObservations[j].feederwatchAbundanceIndex});
+          feederwatchAbundanceIndex:  feederObservations[j].feederwatchAbundanceIndex
+        });
+        feederObservation.set('bird', bird);
         var feederObservationsInBird = bird.get('feederObservations');
         feederObservationsInBird.pushObject(feederObservation);
       }
       for (var k=0,len3=abbreviations.length; k<len3; k++){
         var abbreviation = this.controllers['abbreviation'].addAbbreviation({
           type: abbreviations[k].type,
-          text:  abbreviations[k].text});
+          text:  abbreviations[k].text
+        });
+        abbreviation.set('bird', bird);
         var abbreviationsInBird = bird.get('abbreviations');
         abbreviationsInBird.pushObject(abbreviation);
       }
