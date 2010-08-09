@@ -9,9 +9,9 @@
 // States.
 //
 // Bird feeder observation data comes from Cornell University's Project Feeder 
-// Watch (http://watch.birds.cornell.edu/PFW/ExploreData), with data for the 
-// top 25 birds in two regions, the south-central and southeastern United 
-// States for the 2008-2009 season.
+// Watch (http://watch.birds.cornell.edu/PFW/ExploreData), with data taken
+// from the top 25 birds in two regions, the south-central and southeastern 
+// United States for the 2008-2009 season.
 //
 // Visit this link to see a map, and click for the regions to see the data in 
 // list form:
@@ -25,8 +25,6 @@
 //
 //   For each bird, there is a four-letter abbreviation, a six-letter 
 //   abbreviation, and the same common name that is in the feederObservations.  
-//   These abbreviations could just as well have been stored in the bird data, 
-//   seen in createBirds(), but are kept separate here for testing purposes.
 //
 // ............................................................................
 
@@ -71,7 +69,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     bird:  SC.Record.toOne("ONRTest.BirdApp.Bird", 
                            { inverse: "abbreviations", isMaster: NO }),
 
-    // A handy callback firing on status === READY_CLEAN
+    // A callback firing on status === READY_CLEAN
     _statusObs: function(){ 
       var status = this.get('status'); 
       if (status && status === SC.Record.READY_CLEAN){ 
@@ -92,7 +90,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                                                 { inverse: "feederObservations",
                                                   isMaster: NO }),
 
-    // A handy callback firing on status === READY_CLEAN
+    // A callback firing on status === READY_CLEAN
     _statusObs: function(){ 
       var status = this.get('status'); 
       if (status && status === SC.Record.READY_CLEAN){ 
@@ -118,7 +116,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     feederObservations: SC.Record.toMany("ONRTest.BirdApp.FeederObservation", 
                                          { inverse: "bird", isMaster: YES }),
 
-    // A handy callback firing on status === READY_CLEAN
+    // A callback firing on status === READY_CLEAN
     _statusObs: function(){ 
       var status = this.get('status'); 
       if (status && status === SC.Record.READY_CLEAN){ 
@@ -190,7 +188,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     console.log("STARTING BirdApp");
     console.log("INSTANTIATING models, store");
 
-    // Instantiate models, keeping handy references in this.models
+    // Instantiate models, keeping references in this.models
     this.models['abbreviation'] = this.Abbreviation();
     this.models['feederObservation'] = this.FeederObservation();
     this.models['bird'] = this.Bird();
@@ -339,18 +337,19 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
        abbreviations: [{type: 'fourLetter', text: "RCKI"}, 
                        {type: 'sixLetter', text: "REGCAL"}]}];
     //
-    // Each item in the data above contains information about a single
+    // Each item in the data contains information about a single
     // bird.  Calls are made to the controllers, to the respective 
     // addBird(), addFeederObservation(), and addAbbreviation() functions, 
     // which make createRecord requests.
     //
     // In the models, Bird is the master, having toMany relations with
-    // the Abbreviation and FeederObservation.
+    // the Abbreviation and FeederObservation. The inverse is that each
+    // abbreviation and feederObservation has a bird reference.
     //
     // As these createRecord requests are made, relations are set up by
     // getting the property in each inverse relation, and setting records.
     //
-    //     Note the .get() and pushObject() calls.
+    //     Note the use of get() and set() or pushObject() calls.
     //
     for (var i=0,len=data.length; i<len; i++){
       var commonName         = data[i]['commonName'];
@@ -363,6 +362,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         genus:      taxonomy.genus,
         species:    taxonomy.species
       });
+
       for (var j=0,len2=feederObservations.length; j<len2; j++){
         var feederObservation = this.controllers['feederObservation'].addFeederObservation({
           season:                     feederObservations[j].season,
@@ -376,6 +376,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         var feederObservationsInBird = bird.get('feederObservations');
         feederObservationsInBird.pushObject(feederObservation);
       }
+
       for (var k=0,len3=abbreviations.length; k<len3; k++){
         var abbreviation = this.controllers['abbreviation'].addAbbreviation({
           type: abbreviations[k].type,
