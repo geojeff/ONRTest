@@ -63,11 +63,12 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
   // Model definitions
   Abbreviation: SC.Record.extend({
-    bucket:       'abbreviation',
-    type:  SC.Record.attr(String),
-    text:  SC.Record.attr(String),
-    bird:  SC.Record.toOne("ONRTest.BirdApp.Bird", 
-                           { inverse: "abbreviations", isMaster: NO }),
+    bucket: 'abbreviation',
+    type:   SC.Record.attr(String),
+    text:   SC.Record.attr(String),
+
+    bird: SC.Record.toOne("ONRTest.BirdApp.Bird", 
+                          { inverse: "abbreviations", isMaster: NO }),
 
     // A callback firing on status === READY_CLEAN
     _statusObs: function(){ 
@@ -86,9 +87,18 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     percentageOfFeedersVisited: SC.Record.attr(Number),
     meanGroupSizeWhenSeen:      SC.Record.attr(Number),
     feederwatchAbundanceIndex:  SC.Record.attr(Number),
-    bird:                       SC.Record.toOne("ONRTest.BirdApp.Bird", 
-                                                { inverse: "feederObservations",
-                                                  isMaster: NO }),
+
+    bird: SC.Record.toOne("ONRTest.BirdApp.Bird", 
+                          { inverse: "feederObservations",
+                          isMaster: NO }),
+
+    // A callback firing on bird !=== undefined
+    _birdObs: function(){ 
+      var bird = this.get('bird'); 
+      if (bird){ 
+        ONRTest.BirdApp.birdSetCall(this.get('storeKey')); 
+      }
+    }.observes('status'),
 
     // A callback firing on status === READY_CLEAN
     _statusObs: function(){ 
@@ -124,6 +134,20 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       }
     }.observes('status')
     }),
+
+  // birdSetCall will fire when the bird reference is set in an abbreviation
+  // or feederObservation.
+  birdSetCall: function(storeKey){
+    var recordType = SC.Store.recordTypeFor(storeKey);
+    var id = ONRTest.BirdApp.store.idFor(storeKey);
+    var statusString = ONRTest.BirdApp.store.statusString(storeKey);
+    var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
+    var bird = rec.get('bird');
+    console.log('BIRD SET ' + recordType + '/' 
+                            + id + '/' 
+                            + statusString + '/' 
+                            + bird.get('commonName'));
+  },
 
   // readyCall will fire when the status of any record changes to READY_CLEAN.
   readyCall: function(storeKey){
