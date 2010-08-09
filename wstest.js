@@ -158,7 +158,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
     console.log(recordType + '/' + id + '/' + statusString);
     //console.log(JSON.stringify(ONRTest.BirdApp.store.readDataHash(storeKey)));
-    ONRTest.BirdApp.recordCount++;
+    var recordCount = ONRTest.BirdApp.get('recordCount');
+    ONRTest.BirdApp.set('recordCount', recordCount+1);
     if (recordType === ONRTest.BirdApp.Bird){
       console.log('ABBREVIATIONS');
       var abbreviations = rec.get('abbreviations');
@@ -202,6 +203,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
   // An observer of the total number of records created.
   recordsDidLoad: function(){
+    console.log('recordCount: ' + ONRTest.BirdApp.recordCount);
     if (ONRTest.BirdApp.recordCount === 13) ONRTest.BirdApp.finish();
   }.observes('recordCount'),
 
