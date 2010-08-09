@@ -133,7 +133,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         ONRTest.BirdApp.readyCall(this.get('storeKey')); 
       }
     }.observes('status')
-    }),
+
+  }),
 
   // birdSetCall will fire when the bird reference is set in an abbreviation
   // or feederObservation.
@@ -156,6 +157,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     var statusString = ONRTest.BirdApp.store.statusString(storeKey);
     var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
     console.log(recordType + '/' + id + '/' + statusString);
+    //console.log(JSON.stringify(ONRTest.BirdApp.store.readDataHash(storeKey)));
+    ONRTest.BirdApp.recordCount++;
     if (recordType === ONRTest.BirdApp.Bird){
       console.log('ABBREVIATIONS');
       var abbreviations = rec.get('abbreviations');
@@ -192,6 +195,15 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   store: SC.Store.create({
     commitRecordsAutomatically: YES
   }).from('ONRTest.BirdApp.dataSource'),
+
+  // A count of all records created in the test that have been
+  // marked READY_CLEAN.
+  recordCount: 0,
+
+  // An observer of the total number of records created.
+  recordsDidLoad: function(){
+    if (ONRTest.BirdApp.recordCount === 13) ONRTest.BirdApp.finish();
+  }.observes('recordCount'),
 
   start: function(){
     // 
@@ -317,8 +329,6 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
          
   test: function(){
     //
-    // TODO: Need to provide a callback to finish() for doing tear-down....
-    //
     // Data for birds, feeder observations, and abbreviations were
     // put into hashes to allow convenient creation of data by looping 
     // through the calls to controllers.
@@ -373,7 +383,11 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     // As these createRecord requests are made, relations are set up by
     // getting the property in each inverse relation, and setting records.
     //
-    //     Note the use of get() and set() or pushObject() calls.
+    // A simple list of records created is kept, so we can know when all
+    // have been created, before continuing with test operations.
+    //
+    //     In this test, 3 birds, 4 feederOperations, and 6 abbreviations
+    //     will be created, for a total of 13 records.
     //
     for (var i=0,len=data.length; i<len; i++){
       var commonName         = data[i]['commonName'];
@@ -417,6 +431,9 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   // Tear-down
   //
   finish: function(){
+    console.log('FINISHED');
+    console.log('FINISHED');
+    console.log('FINISHED');
   //  var storedRecords = this.store.find(this.queries['bird']['all']);
   //  storedRecords.pushObjects(this.store.find(this.queries['feederObservation']['all']));
   //  storedRecords.pushObjects(this.store.find(this.queries['abbreviation']['all']));
