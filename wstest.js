@@ -136,12 +136,18 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       console.log('  ' + this.get('genus'));
       var manyAbbreviations = this.get('abbreviations');
       console.log('  ' + manyAbbreviations.get('propertyName'));
-      var theseAbbreviations = manyAbbreviations.get('readOnlyChildren');
-      if (theseAbbreviations){
-        for (var i=0,len=theseAbbreviations.get('length'); i<len; i++){
-          console.log('      ' + theseAbbreviations.objectAt(i).text);
+      //var theseAbbreviations = manyAbbreviations.get('readOnlyChildren');
+      //if (theseAbbreviations){
+        for (var i=0,len=manyAbbreviations.get('length'); i<len; i++){
+          var abr = manyAbbreviations.objectAt(i);
+          if (abr === undefined){
+            console.log('      undefined ');
+          }
+          else {
+            console.log('      defined ');
+          }
         }
-      }
+      //}
     }.observes('isLoaded'),
 
     // A callback firing on status === READY_CLEAN
