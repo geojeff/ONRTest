@@ -333,7 +333,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     //
     // Data for birds, feeder observations, and abbreviations were
     // put into hashes to allow convenient creation of data by looping 
-    // through the calls to controllers.
+    // through calls to controllers.
     //
     var data = [
       {commonName: "Eastern Towhee", 
@@ -434,16 +434,19 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   //
   finish: function(){
     console.log('FINISHING');
-    var results = this.store.find(ONRTest.BirdApp.Bird, "genus = Mimus");
-    for (var i=0,len=results.length; i<len; i++){
-      console.log('found: ' + results[i].get('status'));
+//
+// these three lines to see undefined message "bug"
+//    var results = this.store.find(ONRTest.BirdApp.Bird, "genus = Mimus");
+//    for (var i=0,len=results.length; i<len; i++){
+//      console.log('found: ' + results[i].get('status'));
+//
     //var recordType = SC.Store.recordTypeFor(storeKey);
     //var id = ONRTest.BirdApp.store.idFor(storeKey);
     //var statusString = ONRTest.BirdApp.store.statusString(storeKey);
     //var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
     //console.log(recordType + '/' + id + '/' + statusString);
       //console.log('found Mockingbird: ' + this.store.readDataHash(mockingbird.get('storeKey')));
-    }
+    //}
 //    var storedRecords = this.store.find(this.queries['bird']['all']);
 //    for (var i=0,len=storedRecords.length; i<len; i++){
 //      console.log('found BIRD : ' + JSON.stringify(storedRecords[i].get('storeKey')));
