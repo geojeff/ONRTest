@@ -133,11 +133,14 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
     _loadedObs: function(){
       console.log('ISLOADED: ' + this.get('isLoaded'));
-      console.log('  abbreviations: ' + this.get('abbreviations').get('length'));
+      console.log('  ' + this.get('genus'));
       var manyAbbreviations = this.get('abbreviations');
-      var theseAbbreviations = manyAbbreviations.get('children');
-      for (var i=0,len=theseAbbreviations.get('length'); i<len; i++){
-        console.log('      ' + theseAbbreviations.objectAt(i).text);
+      console.log('  ' + manyAbbreviations.get('propertyName'));
+      var theseAbbreviations = manyAbbreviations.get('readOnlyChildren');
+      if (theseAbbreviations){
+        for (var i=0,len=theseAbbreviations.get('length'); i<len; i++){
+          console.log('      ' + theseAbbreviations.objectAt(i).text);
+        }
       }
     }.observes('isLoaded'),
 
