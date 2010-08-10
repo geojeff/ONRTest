@@ -105,7 +105,7 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
          // whether websocket is the best way to do binary data... 
          // if there is any binary data, there will be trouble...
          if(event.data){
-            //console.log("data in event: " + event.data);
+            console.log("data in event: " + event.data);
             var messages = JSON.parse(event.data);
             if(messages){
                // check if messages is an array, if not, make one

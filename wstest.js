@@ -435,10 +435,10 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   finish: function(){
     console.log('FINISHING');
 //
-// these three lines to see undefined message "bug"
-//    var results = this.store.find(ONRTest.BirdApp.Bird, "genus = Mimus");
-//    for (var i=0,len=results.length; i<len; i++){
-//      console.log('found: ' + results[i].get('status'));
+    var results = this.store.find(SC.Query.remote(ONRTest.BirdApp.Bird, "genus = {gen}", { gen: "Regulus"}));
+    for (var i=0,len=results.length; i<len; i++){
+      console.log('found: ' + results[i].get('status'));
+    }
 //
     //var recordType = SC.Store.recordTypeFor(storeKey);
     //var id = ONRTest.BirdApp.store.idFor(storeKey);
