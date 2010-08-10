@@ -105,7 +105,7 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
          // whether websocket is the best way to do binary data... 
          // if there is any binary data, there will be trouble...
          if(event.data){
-            console.log("data in event: " + event.data);
+            //console.log("data in event: " + event.data);
             var messages = JSON.parse(event.data);
             if(messages){
                // check if messages is an array, if not, make one
@@ -840,7 +840,6 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
    
    onCreateRecordResult: function(data){
       // function to process the data from the server when a createRecord call has been made to the server
-      console.log('ONR onCreateRecordResult called with data: ' + JSON.stringify(data));
       var createRecordResult = data.createRecordResult;
       var requestCacheKey = createRecordResult.returnData.requestCacheKey;
       var requestCache = this._requestCache[requestCacheKey];
@@ -942,6 +941,7 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
    */
    
    onUpdateRecordResult: function(data){
+      console.log("Received update: " + JSON.stringify(data));
       // different implementation of the onUpdateRecordResult
       // as ONR can also return the data in one go
       // which seems the most simple and forward solution

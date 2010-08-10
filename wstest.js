@@ -61,6 +61,11 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   // references stored here.
   models: {},
 
+  // References to records that will be created.
+  birds: [],
+  abbreviations: [],
+  feederObservations: [],
+
   // Model definitions
   Abbreviation: SC.Record.extend({
     bucket: 'abbreviation',
@@ -255,14 +260,14 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     this.queries['bird']['all'] = SC.Query.create({
       recordType: ONRTest.BirdApp.Bird
     });
-    this.queries['bird']['Mockingbird'] = SC.Query.create({ 
+    this.queries['bird']['Kinglet'] = SC.Query.create({ 
       conditions: "genus = {gn_ltrs} AND commonName CONTAINS {ltrs}", 
-      parameters: { gn_ltrs:"Mimus", ltrs:"Mockingbird"},
+      parameters: { gn_ltrs:"Regulus", ltrs:"Kinglet"},
       recordType: ONRTest.BirdApp.Bird
     });
-    this.queries['bird']['Robin'] = SC.Query.create({ 
+    this.queries['bird']['Finch'] = SC.Query.create({ 
       conditions: "genus = {gn_ltrs} AND commonName CONTAINS {ltrs}", 
-      parameters: { gn_ltrs:"Turdus", ltrs:"Robin"},
+      parameters: { gn_ltrs:"Carpodacus", ltrs:"Finch"},
       recordType: ONRTest.BirdApp.Bird
     });
 
@@ -403,6 +408,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         species:    taxonomy.species
       });
 
+      this.birds.push(bird);
+
       for (var j=0,len2=feederObservations.length; j<len2; j++){
         var feederObservation = this.controllers['feederObservation'].addFeederObservation({
           season:                     feederObservations[j].season,
@@ -412,6 +419,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           meanGroupSizeWhenSeen:      feederObservations[j].meanGroupSizeWhenSeen,
           feederwatchAbundanceIndex:  feederObservations[j].feederwatchAbundanceIndex
         });
+        this.feederObservations.push(feederObservation);
         feederObservation.set('bird', bird);
         var feederObservationsInBird = bird.get('feederObservations');
         feederObservationsInBird.pushObject(feederObservation);
@@ -422,6 +430,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           type: abbreviations[k].type,
           text:  abbreviations[k].text
         });
+        this.abbreviations.push(abbreviation);
         abbreviation.set('bird', bird);
         var abbreviationsInBird = bird.get('abbreviations');
         abbreviationsInBird.pushObject(abbreviation);
@@ -434,32 +443,18 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   //
   finish: function(){
     console.log('FINISHING');
-//
-    var results = this.store.find(SC.Query.remote(ONRTest.BirdApp.Bird, "genus = {gen}", { gen: "Regulus"}));
-    for (var i=0,len=results.length; i<len; i++){
-      console.log('found: ' + results[i].get('status'));
+
+    for (var i=0,len=this.birds.length; i<len; i++){
+      console.log(this.birds[i].get('commonName'));
+      console.log('  Abbreviations:');
+      for (var j=0,length=this.birds[i].abbreviations.length; j<length; j++){
+        console.log('    ' + this.birds[i].abbreviations[j].get('text'));
+      }
+      console.log('  Feeder Observations:');
+      for (j=0,length=this.birds[i].feederObservations.length; j<length; j++){
+        console.log('    ' + this.birds[i].feederObservations[j].get('region'));
+      }
     }
-//
-    //var recordType = SC.Store.recordTypeFor(storeKey);
-    //var id = ONRTest.BirdApp.store.idFor(storeKey);
-    //var statusString = ONRTest.BirdApp.store.statusString(storeKey);
-    //var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
-    //console.log(recordType + '/' + id + '/' + statusString);
-      //console.log('found Mockingbird: ' + this.store.readDataHash(mockingbird.get('storeKey')));
-    //}
-//    var storedRecords = this.store.find(this.queries['bird']['all']);
-//    for (var i=0,len=storedRecords.length; i<len; i++){
-//      console.log('found BIRD : ' + JSON.stringify(storedRecords[i].get('storeKey')));
-//    }
-//    storedRecords = this.store.find(this.queries['feederObservation']['all']);
-//    for (i=0,len=storedRecords.length; i<len; i++){
-//      console.log('found FO : ' + JSON.stringify(storedRecords[i].get('storeKey')));
-//    }
-//    storedRecords = this.store.find(this.queries['abbreviation']['all']);
-//    for (i=0,len=storedRecords.length; i<len; i++){
-//      console.log('found ABBR: ' + JSON.stringify(storedRecords[i].get('storeKey')));
-//      //this.store.deleteRecord(storedRecords[i]);
-//    }
   }
 });
 
@@ -467,8 +462,8 @@ ONRTest.start = function(){
   console.log("STARTING CLIENTS");
 
   this.clients = {};
-  //this.clients['FetchMockingbird'] = ONRTest.BirdApp;
-  //this.clients['FetchRobin'] = ONRTest.BirdApp;
+  //this.clients['FetchKinglet'] = ONRTest.BirdApp;
+  //this.clients['FetchFinch'] = ONRTest.BirdApp;
   this.clients['BirdApp'] = ONRTest.BirdApp;
 
   for (var clientName in ONRTest.clients){
