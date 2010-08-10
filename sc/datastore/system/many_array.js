@@ -403,7 +403,7 @@ SC.ManyArray = SC.Object.extend(SC.Enumerable, SC.Array,
   /** @private */
   unknownProperty: function(key, value) {
     var ret = this.reducedProperty(key, value);
-    return ret === undefined ? sc_super() : ret;
+    return ret === undefined ? arguments.callee.base.apply(this, arguments) : ret;
   },
 
   /** @private */

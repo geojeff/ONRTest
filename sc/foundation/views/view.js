@@ -1562,7 +1562,7 @@ SC.View = SC.Responder.extend(SC.DelegateSupport,
   init: function() {
     var parentView, path, root, idx, len, lp, dp ;
     
-    sc_super() ;
+    arguments.callee.base.apply(this, arguments) ;
 
     // Register this view for event handling
     SC.View.views[this.get('layerId')] = this ;

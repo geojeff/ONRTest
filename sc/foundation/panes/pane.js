@@ -223,7 +223,7 @@ SC.Pane = SC.View.extend(SC.ResponderContext,
   },
 
   performKeyEquivalent: function(keystring, evt) {
-    var ret = sc_super() ; // try normal view behavior first
+    var ret = arguments.callee.base.apply(this, arguments) ; // try normal view behavior first
     if (!ret) {
       var defaultResponder = this.get('defaultResponder') ;
       if (defaultResponder) {
@@ -810,7 +810,7 @@ SC.Pane = SC.View.extend(SC.ResponderContext,
     // if a layer was set manually then we will just attach to existing 
     // HTML.
     var hasLayer = !!this.get('layer') ;
-    sc_super() ;
+    arguments.callee.base.apply(this, arguments) ;
     if (hasLayer) this.paneDidAttach();
   },
 
