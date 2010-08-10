@@ -95,7 +95,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
     bird: SC.Record.toOne("ONRTest.BirdApp.Bird", 
                           { inverse: "feederObservations",
-                          isMaster: NO }),
+                            isMaster: NO }),
 
     // A callback firing on bird !=== undefined
     _birdObs: function(){ 
@@ -130,6 +130,11 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                                          { inverse: "bird", isMaster: YES }),
     feederObservations: SC.Record.toMany("ONRTest.BirdApp.FeederObservation", 
                                          { inverse: "bird", isMaster: YES }),
+
+    _loadedObs: function(){
+        console.log('ISLOADED: ' + this.get('isLoaded'));
+        console.log('  abbreviations: ' + this.get('abbreviations').get('length'));
+    }.observes('isLoaded'),
 
     // A callback firing on status === READY_CLEAN
     _statusObs: function(){ 
@@ -438,23 +443,28 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     }
   },
 
+//  checkBirds: function(){
+//    console.log('in CHECKBIRDS');
+//    for (var i=0,len=ONRTest.BirdApp.birds.length; i<len; i++){
+//      if (ONRTest.BirdApp.birds[i].isLoaded){
+//        console.log(ONRTest.BirdApp.birds[i].get('commonName'));
+//        console.log('  Abbreviations:');
+//        for (var j=0,length=ONRTest.BirdApp.birds[i].abbreviations.length; j<length; j++){
+//          console.log('    ' + ONRTest.BirdApp.birds[i].abbreviations[j].get('text'));
+//        }
+//        console.log('  Feeder Observations:');
+//        for (j=0,length=ONRTest.BirdApp.birds[i].feederObservations.length; j<length; j++){
+//          console.log('    ' + ONRTest.BirdApp.birds[i].feederObservations[j].get('region'));
+//        }
+//      }
+//    }
+//  }.observes(bird.isLoaded),
+
   // 
   // Tear-down
   //
   finish: function(){
     console.log('FINISHING');
-
-    for (var i=0,len=this.birds.length; i<len; i++){
-      console.log(this.birds[i].get('commonName'));
-      console.log('  Abbreviations:');
-      for (var j=0,length=this.birds[i].abbreviations.length; j<length; j++){
-        console.log('    ' + this.birds[i].abbreviations[j].get('text'));
-      }
-      console.log('  Feeder Observations:');
-      for (j=0,length=this.birds[i].feederObservations.length; j<length; j++){
-        console.log('    ' + this.birds[i].feederObservations[j].get('region'));
-      }
-    }
   }
 });
 
