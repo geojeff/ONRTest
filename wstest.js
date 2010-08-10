@@ -132,8 +132,13 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                                          { inverse: "bird", isMaster: YES }),
 
     _loadedObs: function(){
-        console.log('ISLOADED: ' + this.get('isLoaded'));
-        console.log('  abbreviations: ' + this.get('abbreviations').get('length'));
+      console.log('ISLOADED: ' + this.get('isLoaded'));
+      console.log('  abbreviations: ' + this.get('abbreviations').get('length'));
+      var manyAbbreviations = this.get('abbreviations');
+      var theseAbbreviations = manyAbbreviations.get('children');
+      for (var i=0,len=theseAbbreviations.get('length'); i<len; i++){
+        console.log('      ' + theseAbbreviations.objectAt(i).text);
+      }
     }.observes('isLoaded'),
 
     // A callback firing on status === READY_CLEAN
