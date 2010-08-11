@@ -349,7 +349,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           "feederwatchAbundanceIndex":  feederwatchAbundanceIndex
         });
     
-        this._tmpFeederObservaton = feederObservation;
+        this._tmpFeederObservation = feederObservation;
         this._tmpBird = bird;
 
         feederObservation.addFiniteObserver('status',this,'onAddedFeederObservation',this);
