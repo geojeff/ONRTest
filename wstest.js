@@ -446,17 +446,18 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     // Each item in the data contains information about a single
     // bird.  Calls are made to the controllers, to the respective 
     // addBird(), addFeederObservation(), and addAbbreviation() functions, 
-    // which make createRecord requests.
+    // which make createRecord requests, in logic based on creating the
+    // master objects first, and using callbacks for control, waiting 
+    // until the master records are READY_CLEAN before creating the other
+    // records and setting relations among them.
     //
     // In the models, Bird is the master, having toMany relations with
     // the Abbreviation and FeederObservation. The inverse is that each
     // abbreviation and feederObservation has a bird reference.
     //
-    // As these createRecord requests are made, relations are set up by
-    // getting the property in each inverse relation, and setting records.
-    //
-    // A simple list of records created is kept, so we can know when all
-    // have been created, before continuing with test operations.
+    // At one point in development, this simple list of records was kept, 
+    // to know when all have been created, before continuing with test 
+    // operations. This was replaced by a system based on callbacks.
     //
     //     In this test, 3 birds, 4 feederOperations, and 6 abbreviations
     //     will be created, for a total of 13 records.
