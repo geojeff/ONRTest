@@ -350,6 +350,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           console.log('checking FeederObservations ');
           if (val & SC.Record.READY_CLEAN){
             me._tmpRecordCache[commonName].push(feederObservation);
+            ONRTest.BirdApp.data[commonName]['records']['feederObservations'].push(feederObservation);
             me._tmpRecordCountCache[commonName]--;
             if (me._tmpRecordCountCache[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
@@ -382,8 +383,6 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           ONRTest.BirdApp.store.commitRecords();
 
           feederObservation.addFiniteObserver('status',this,this.generateCheckFeederObservations(commonName,feederObservation),this);
-
-          ONRTest.BirdApp.data[commonName]['records']['feederObservations'].push(feederObservation);
         }
       },
 
@@ -399,6 +398,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           console.log('checking Abbreviations ');
           if (val & SC.Record.READY_CLEAN){
             me._tmpRecordCache[commonName].push(abbreviation);
+            ONRTest.BirdApp.data[commonName]['records']['abbreviations'].push(abbreviation);
             me._tmpRecordCountCache[commonName]--;
             if (me._tmpRecordCountCache[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
@@ -428,8 +428,6 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           ONRTest.BirdApp.store.commitRecords();
 
           abbreviation.addFiniteObserver('status',this,this.generateCheckAbbreviations(commonName,abbreviation),this);
-
-          ONRTest.BirdApp.data[commonName]['records']['abbreviations'].push(abbreviation);
         }
       },
 
