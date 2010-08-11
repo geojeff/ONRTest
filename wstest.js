@@ -66,6 +66,44 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   abbreviations: [],
   feederObservations: [],
 
+  //
+  // Data for birds, feeder observations, and abbreviations were
+  // put into hashes to allow convenient creation of data in special
+  // callback functions that call controllers.
+  //
+  data: { "Eastern Towhee":     { taxonomy: { genus: "Pipilo", species: "erythrophthalmus"},
+                                  feederObservations: [{ season: "2008-2009", 
+                                                         region: "Southeastern US", 
+                                                         rank: 17, 
+                                                         percentageOfFeedersVisited: 49.60, 
+                                                         meanGroupSizeWhenSeen: 1.49, 
+                                                         feederwatchAbundanceIndex: 0.25}],
+                                  abbreviations: [{ type: 'fourLetter', text: "EATO" }, 
+                                                  { type: 'sixLetter', text: "PIPERP" }]},
+          "House Finch":        { taxonomy: { genus: "Carpodacus", species: "mexicanus"},
+                                  feederObservations: [{ season: "2008-2009",        // Two for House Finch
+                                                         region: "Southeastern US", 
+                                                         rank: 8, 
+                                                         percentageOfFeedersVisited: 74.17, 
+                                                         meanGroupSizeWhenSeen: 3.38, 
+                                                         feederwatchAbundanceIndex: 1.32},
+                                                       { season: "2008-2009", 
+                                                         region: "South Central US", 
+                                                         rank: 6, 
+                                                         percentageOfFeedersVisited: 75.37, 
+                                                         meanGroupSizeWhenSeen: 3.58, 
+                                                         feederwatchAbundanceIndex: 1.23}],
+                                   abbreviations: [{ type: 'fourLetter', text: "HOFI"}, 
+                                                   { type: 'sixLetter', text: "CARMEX"}]},
+          "Ruby-crowned Kinglet": { taxonomy: { genus: "Regulus", species: "calendula"},
+                                    feederObservations: [{ season: "2008-2009", 
+                                                           region: "South Central US", 
+                                                           rank: 22, 
+                                                           percentageOfFeedersVisited: 39.76, 
+                                                           meanGroupSizeWhenSeen: 1.17, 
+                                                           feederwatchAbundanceIndex: 0.14}],
+                                    abbreviations: [{ type: 'fourLetter', text: "RCKI"}, 
+                                                    { type: 'sixLetter', text: "REGCAL"}]}},
   // Model definitions
   Abbreviation: SC.Record.extend({
     bucket: 'abbreviation',
@@ -129,35 +167,27 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     abbreviations:      SC.Record.toMany("ONRTest.BirdApp.Abbreviation", 
                                          { inverse: "bird", isMaster: YES }),
     feederObservations: SC.Record.toMany("ONRTest.BirdApp.FeederObservation", 
-                                         { inverse: "bird", isMaster: YES }),
+                                         { inverse: "bird", isMaster: YES })
 
-    _loadedObs: function(){
-      console.log('ISLOADED: ' + this.get('isLoaded'));
-      console.log('  ' + this.get('genus'));
-      var manyAbbreviations = this.get('abbreviations');
-      console.log('  ' + manyAbbreviations.get('propertyName'));
-      //var theseAbbreviations = manyAbbreviations.get('readOnlyChildren');
-      //if (theseAbbreviations){
-        for (var i=0,len=manyAbbreviations.get('length'); i<len; i++){
-          var abr = manyAbbreviations.objectAt(i);
-          if (abr === undefined){
-            console.log('      undefined ');
-          }
-          else {
-            console.log('      defined ');
-          }
-        }
-      //}
-    }.observes('isLoaded'),
-
-    // A callback firing on status === READY_CLEAN
-    _statusObs: function(){ 
-      var status = this.get('status'); 
-      if (status && status === SC.Record.READY_CLEAN){ 
-        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
-      }
-    }.observes('status')
-
+//    _loadedObs: function(){
+//      console.log('ISLOADED: ' + this.get('isLoaded'));
+//      console.log('  ' + this.get('genus'));
+//      //var manyAbbreviations = this.get('abbreviations');
+//      //for (var i=0,len=manyAbbreviations.get('length'); i<len; i++){
+//      //  if (abr === undefined){
+//      //    console.log('      undefined ');
+//      //  }
+//      //}
+//    }.observes('isLoaded'),
+//
+//    // A callback firing on status === READY_CLEAN
+//    _statusObs: function(){ 
+//      var status = this.get('status'); 
+//      if (status && status === SC.Record.READY_CLEAN){ 
+//        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
+//      }
+//    }.observes('status')
+//
   }),
 
   // birdSetCall will fire when the bird reference is set in an abbreviation
@@ -199,7 +229,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     else {
       console.log('BIRD');
       var bird = rec.get('bird');
-      if (bird) console.log(bird.get('commonName'));
+      //if (bird) console.log(bird.get('commonName'));
     }
   },
 
@@ -298,7 +328,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
             rank                       = args['rank'],
             percentageOfFeedersVisited = args['percentageOfFeedersVisited'],
             meanGroupSizeWhenSeen      = args['meanGroupSizeWhenSeen'],
-            feederwatchAbundanceIndex  = args['feederwatchAbundanceIndex'];
+            feederwatchAbundanceIndex  = args['feederwatchAbundanceIndex'],
+            bird                       = args['bird'];
 
         var feederObservation;
     
@@ -312,14 +343,35 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           "feederwatchAbundanceIndex":  feederwatchAbundanceIndex
         });
     
+        this._tmpFeederObservaton = feederObservation;
+        this._tmpBird = bird;
+
+        feederObservation.addFiniteObserver('status',this,'onAddedFeederObservation',this);
+
         return feederObservation;
+      },
+
+      _tmpFeederObservation: null,
+ 
+      _tmpBird: null,
+ 
+      onAddedFeederObservation: function(val){
+        if (val & SC.Record.READY_CLEAN){
+          this._tmpBird.get('feederObservations').pushObject(this._tmpFeederObservation);
+          ONRTest.BirdApp.store.commitRecords();
+          //this._tmpBird = null;
+          //this._tmpFeederObservation = null;
+          return YES;
+        }
+        else return NO;
       }
     });
-
+        
     this.controllers['abbreviation'] = SC.ArrayController.create({
       addAbbreviation: function(args){
         var type = args['type'],
-            text = args['text'];
+            text = args['text'],
+            bird = args['bird'];
 
         var abbreviation;
 
@@ -329,7 +381,26 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           "text": text
         });
     
+        this._tmpAbbreviation = abbreviation;
+        this._tmpBird = bird;
+
+        abbreviation.addFiniteObserver('status',this,'onAddedAbbreviation',this);
+
         return abbreviation;
+      },
+
+      _tmpAbbreviation: null,
+      _tmpBird: null,
+ 
+      onAddedAbbreviation: function(val){
+        if (val & SC.Record.READY_CLEAN){
+          this._tmpBird.get('abbreviations').pushObject(this._tmpAbbreviation);
+          ONRTest.BirdApp.store.commitRecords();
+          //this._tmpBird = null;
+          //this._tmpAbbreviation = null;
+          return YES;
+        }
+        else return NO;
       }
     });
 
@@ -348,54 +419,29 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           "species":    species
         });
     
+        this._tmpBird = bird;
+
+        bird.addFiniteObserver('status',this,'onAddedBird',this);
+
         return bird;
+      },
+
+      _tmpBird: null,
+
+      onAddedBird: function(val){
+        if (val & SC.Record.READY_CLEAN){
+          ONRTest.BirdApp.store.commitRecords();      // this needed to commit bird records first?
+          ONRTest.BirdApp.createAbbreviations(this._tmpBird);
+          ONRTest.BirdApp.createFeederObservations(this._tmpBird);
+          //this._tmpBird = null;
+          return YES;
+        }
+        else return NO;
       }
     });
   },
          
   test: function(){
-    //
-    // Data for birds, feeder observations, and abbreviations were
-    // put into hashes to allow convenient creation of data by looping 
-    // through calls to controllers.
-    //
-    var data = [
-      {commonName: "Eastern Towhee", 
-       taxonomy: {genus: "Pipilo", species: "erythrophthalmus"},
-       feederObservations: [{season: "2008-2009", 
-                             region: "Southeastern US", 
-                             rank: 17, 
-                             percentageOfFeedersVisited: 49.60, 
-                             meanGroupSizeWhenSeen: 1.49, 
-                             feederwatchAbundanceIndex: 0.25}],
-       abbreviations: [{type: 'fourLetter', text: "EATO"}, 
-                       {type: 'sixLetter', text: "PIPERP"}]},
-      {commonName: "House Finch", 
-       taxonomy: {genus: "Carpodacus", species: "mexicanus"},
-       feederObservations: [{season: "2008-2009",        // Two for House Finch
-                             region: "Southeastern US", 
-                             rank: 8, 
-                             percentageOfFeedersVisited: 74.17, 
-                             meanGroupSizeWhenSeen: 3.38, 
-                             feederwatchAbundanceIndex: 1.32},
-                            {season: "2008-2009", 
-                             region: "South Central US", 
-                             rank: 6, 
-                             percentageOfFeedersVisited: 75.37, 
-                             meanGroupSizeWhenSeen: 3.58, 
-                             feederwatchAbundanceIndex: 1.23}],
-       abbreviations: [{type: 'fourLetter', text: "HOFI"}, 
-                       {type: 'sixLetter', text: "CARMEX"}]},
-      {commonName: "Ruby-crowned Kinglet",
-       taxonomy: {genus: "Regulus", species: "calendula"},
-       feederObservations: [{season: "2008-2009", 
-                             region: "South Central US", 
-                             rank: 22, 
-                             percentageOfFeedersVisited: 39.76, 
-                             meanGroupSizeWhenSeen: 1.17, 
-                             feederwatchAbundanceIndex: 0.14}],
-       abbreviations: [{type: 'fourLetter', text: "RCKI"}, 
-                       {type: 'sixLetter', text: "REGCAL"}]}];
     //
     // Each item in the data contains information about a single
     // bird.  Calls are made to the controllers, to the respective 
@@ -415,45 +461,44 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     //     In this test, 3 birds, 4 feederOperations, and 6 abbreviations
     //     will be created, for a total of 13 records.
     //
-    for (var i=0,len=data.length; i<len; i++){
-      var commonName         = data[i]['commonName'];
-      var taxonomy           = data[i]['taxonomy'];
-      var feederObservations = data[i]['feederObservations'];
-      var abbreviations      = data[i]['abbreviations'];
+    for (var commonName in this.data){
+      var taxonomy           = this.data[commonName]['taxonomy'];
 
-      var bird = this.controllers['bird'].addBird({
-        commonName: commonName,
-        genus:      taxonomy.genus,
-        species:    taxonomy.species
-      });
-
+      // abbreviations and feederObservations for each bird (see data) are
+      // added by callbacks that wait for each bird record to be loaded first.
+      var bird = this.controllers['bird'].addBird({ commonName: commonName,
+                                                    genus:      taxonomy.genus,
+                                                    species:    taxonomy.species });
       this.birds.push(bird);
+    }
+  },
 
-      for (var j=0,len2=feederObservations.length; j<len2; j++){
-        var feederObservation = this.controllers['feederObservation'].addFeederObservation({
-          season:                     feederObservations[j].season,
-          region:                     feederObservations[j].region,
-          rank:                       feederObservations[j].rank,
-          percentageOfFeedersVisited: feederObservations[j].percentageOfFeedersVisited,
-          meanGroupSizeWhenSeen:      feederObservations[j].meanGroupSizeWhenSeen,
-          feederwatchAbundanceIndex:  feederObservations[j].feederwatchAbundanceIndex
-        });
-        this.feederObservations.push(feederObservation);
-        feederObservation.set('bird', bird);
-        var feederObservationsInBird = bird.get('feederObservations');
-        feederObservationsInBird.pushObject(feederObservation);
-      }
+  createFeederObservations: function(bird){
+    var feederObservations = this.data[bird.get('commonName')]['feederObservations'];
 
-      for (var k=0,len3=abbreviations.length; k<len3; k++){
-        var abbreviation = this.controllers['abbreviation'].addAbbreviation({
-          type: abbreviations[k].type,
-          text:  abbreviations[k].text
-        });
-        this.abbreviations.push(abbreviation);
-        abbreviation.set('bird', bird);
-        var abbreviationsInBird = bird.get('abbreviations');
-        abbreviationsInBird.pushObject(abbreviation);
-      }
+    for (var i=0,len=feederObservations.length; i<len; i++){
+      var feederObservation = this.controllers['feederObservation'].addFeederObservation({
+        season:                     feederObservations[i].season,
+        region:                     feederObservations[i].region,
+        rank:                       feederObservations[i].rank,
+        percentageOfFeedersVisited: feederObservations[i].percentageOfFeedersVisited,
+        meanGroupSizeWhenSeen:      feederObservations[i].meanGroupSizeWhenSeen,
+        feederwatchAbundanceIndex:  feederObservations[i].feederwatchAbundanceIndex,
+        bird:                       bird });
+
+      this.feederObservations.push(feederObservation);
+    }
+  },
+
+  createAbbreviations: function(bird){
+    var abbreviations = this.data[bird.get('commonName')]['abbreviations'];
+    for (var i=0,len=abbreviations.length; i<len; i++){
+      var abbreviation = this.controllers['abbreviation'].addAbbreviation({
+        type: abbreviations[i].type,
+        text: abbreviations[i].text,
+        bird: bird });
+
+      this.abbreviations.push(abbreviation);
     }
   },
 
