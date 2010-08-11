@@ -254,7 +254,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
   // For the store, that would be defined in core.js
   store: SC.Store.create({
-    commitRecordsAutomatically: YES
+    //commitRecordsAutomatically: YES
   }).from('ONRTest.BirdApp.dataSource'),
 
   // A count of all records created in the test that have been
@@ -267,6 +267,22 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     if (ONRTest.BirdApp.recordCount === 13) ONRTest.BirdApp.finish();
   }.observes('recordCount'),
 
+  generateCacheKey: function(){
+    // the idea for this method was copied from the php site: 
+    // http://www.php.net/manual/en/function.session-regenerate-id.php#60478
+    var keyLength = 32,
+        keySource = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        keySourceLength = keySource.length + 1, // we need to add one, to make sure the last character will be used in generating the key
+        ret = [],
+        curCharIndex = 0;
+      
+    for(var i=0;i<=keyLength;i++){
+       curCharIndex = Math.floor(Math.random()*keySourceLength);
+       ret.push(keySource[curCharIndex]);
+    }
+    return ret.join('');
+  },
+  
   start: function(){
     // 
     // This function is called by ONRTest.start(), which is called on loading 
@@ -328,121 +344,128 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
     // Create the controllers.
     this.controllers['feederObservation'] = SC.ArrayController.create({
-      addFeederObservation: function(args){
-        var season                     = args['season'],
-            region                     = args['region'],
-            rank                       = args['rank'],
-            percentageOfFeedersVisited = args['percentageOfFeedersVisited'],
-            meanGroupSizeWhenSeen      = args['meanGroupSizeWhenSeen'],
-            feederwatchAbundanceIndex  = args['feederwatchAbundanceIndex'],
-            bird                       = args['bird'];
-
-        var feederObservation;
+      generateCheckFeederObservations: function(commonName,feederObservation){
+        var me = this;
+        return function(val){
+          console.log('checking FeederObservations ');
+          if (val & SC.Record.READY_CLEAN){
+            me._tmpRecordCache[commonName].push(feederObservation);
+            me._tmpRecordCountCache[commonName]--;
+            if (me._tmpRecordCountCache[commonName] === 0){
+              delete me._tmpRecordCache[commonName]; // delete the old contents
+              delete me._tmpRecordCountCache[commonName];
+              ONRTest.BirdApp.controllers['abbreviation'].createAbbreviations(commonName);
+            }
+            return YES;
+          }
+          else return NO;
+        };
+      },
+ 
+      createFeederObservations: function(commonName){
+        console.log('createFeederObservations ' + commonName);
+        var feederObservations = ONRTest.BirdApp.data[commonName]['feederObservations'];
     
-        // Create a new feederObservation in the store.
-        feederObservation = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.FeederObservation, {
-          "season":                     season,
-          "region":                     region,
-          "rank":                       rank,
-          "percentageOfFeedersVisited": percentageOfFeedersVisited,
-          "meanGroupSizeWhenSeen":      meanGroupSizeWhenSeen,
-          "feederwatchAbundanceIndex":  feederwatchAbundanceIndex
-        });
-    
-        this._tmpFeederObservation = feederObservation;
-        this._tmpBird = bird;
+        this._tmpRecordCache[commonName] = [];
+        this._tmpRecordCountCache[commonName] = feederObservations.length;
+            
+        for (var i=0,len=feederObservations.length; i<len; i++){
+          var feederObservation;
+          feederObservation = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.FeederObservation, {
+            "season":                     feederObservations[i].season,
+            "region":                     feederObservations[i].region,
+            "rank":                       feederObservations[i].rank,
+            "percentageOfFeedersVisited": feederObservations[i].percentageOfFeedersVisited,
+            "meanGroupSizeWhenSeen":      feederObservations[i].meanGroupSizeWhenSeen,
+            "feederwatchAbundanceIndex":  feederObservations[i].feederwatchAbundanceIndex});
 
-        feederObservation.addFiniteObserver('status',this,'onAddedFeederObservation',this);
+          ONRTest.BirdApp.store.commitRecords();
 
-        return feederObservation;
+          feederObservation.addFiniteObserver('status',this,this.generateCheckFeederObservations(commonName,feederObservation),this);
+
+          ONRTest.BirdApp.data[commonName]['records']['feederObservations'].push(feederObservation);
+        }
       },
 
-      _tmpFeederObservation: null,
- 
-      _tmpBird: null,
- 
-      onAddedFeederObservation: function(val){
-        if (val & SC.Record.READY_CLEAN){
-          this._tmpBird.get('feederObservations').pushObject(this._tmpFeederObservation);
-          ONRTest.BirdApp.store.commitRecords();
-          //this._tmpBird = null;
-          //this._tmpFeederObservation = null;
-          return YES;
-        }
-        else return NO;
-      }
+      _tmpRecordCache: {},
+      _tmpRecordCountCache: {}
+
     });
         
     this.controllers['abbreviation'] = SC.ArrayController.create({
-      addAbbreviation: function(args){
-        var type = args['type'],
-            text = args['text'],
-            bird = args['bird'];
-
-        var abbreviation;
-
-        // Create a new abbreviation in the store.
-        abbreviation = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.Abbreviation, {
-          "type": type,
-          "text": text
-        });
+      generateCheckAbbreviations: function(commonName,abbreviation){
+        var me = this;
+        return function(val){
+          console.log('checking Abbreviations ');
+          if (val & SC.Record.READY_CLEAN){
+            me._tmpRecordCache[commonName].push(abbreviation);
+            me._tmpRecordCountCache[commonName]--;
+            if (me._tmpRecordCountCache[commonName] === 0){
+              delete me._tmpRecordCache[commonName]; // delete the old contents
+              delete me._tmpRecordCountCache[commonName];
+              ONRTest.BirdApp.controllers['bird'].createBird(commonName);
+            }
+            return YES;
+          }
+          else return NO;
+        };
+      },
+ 
+      createAbbreviations: function(commonName){
+        console.log('createAbbreviations ' + commonName);
+        var abbreviations = ONRTest.BirdApp.data[commonName]['abbreviations'];
     
-        this._tmpAbbreviation = abbreviation;
-        this._tmpBird = bird;
+        this._tmpRecordCache[commonName] = [];
+        this._tmpRecordCountCache[commonName] = abbreviations.length;
+            
+        for (var i=0,len=abbreviations.length; i<len; i++){
+          var abbreviation;
+          abbreviation = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.Abbreviation, {
+            "type": abbreviations[i].type,
+            "text": abbreviations[i].text
+          });
 
-        abbreviation.addFiniteObserver('status',this,'onAddedAbbreviation',this);
+          ONRTest.BirdApp.store.commitRecords();
 
-        return abbreviation;
+          abbreviation.addFiniteObserver('status',this,this.generateCheckAbbreviations(commonName,abbreviation),this);
+
+          ONRTest.BirdApp.data[commonName]['records']['abbreviations'].push(abbreviation);
+        }
       },
 
-      _tmpAbbreviation: null,
-      _tmpBird: null,
- 
-      onAddedAbbreviation: function(val){
-        if (val & SC.Record.READY_CLEAN){
-          this._tmpBird.get('abbreviations').pushObject(this._tmpAbbreviation);
-          ONRTest.BirdApp.store.commitRecords();
-          //this._tmpBird = null;
-          //this._tmpAbbreviation = null;
-          return YES;
-        }
-        else return NO;
-      }
+      _tmpRecordCache: {},
+      _tmpRecordCountCache: {}
+
     });
 
     this.controllers['bird'] = SC.ArrayController.create({
-      addBird: function(args){
-        var commonName = args['commonName'];
-        var genus      = args['genus'];
-        var species    = args['species'];
+      createBird: function(commonName){
+        var taxonomy = ONRTest.BirdApp.data[commonName]['taxonomy'];
 
         var bird;
-
-        // Create a new bird in the store.
         bird = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.Bird, {
           "commonName": commonName,
-          "genus":      genus,
-          "species":    species
+          "genus":      taxonomy.genus,
+          "species":    taxonomy.species
         });
     
-        this._tmpBird = bird;
+        var feederObservations = ONRTest.BirdApp.data[commonName]['records']['feederObservations'];
+        var feederObservationsInBird = bird.get('feederObservations');
+        for (var i=0,len=feederObservations.length; i<len; i++){
+          feederObservationsInBird.pushObject(feederObservations[i]);
+        }
 
-        bird.addFiniteObserver('status',this,'onAddedBird',this);
+        var abbreviations = ONRTest.BirdApp.data[commonName]['records']['abbreviations'];
+        var abbreviationsInBird = bird.get('abbreviations');
+        for (i=0,len=abbreviations.length; i<len; i++){
+          abbreviationsInBird.pushObject(abbreviations[i]);
+        }
+
+        ONRTest.BirdApp.store.commitRecords();
+
+        ONRTest.BirdApp.data[commonName]['records']['bird'] = bird;
 
         return bird;
-      },
-
-      _tmpBird: null,
-
-      onAddedBird: function(val){
-        if (val & SC.Record.READY_CLEAN){
-          ONRTest.BirdApp.store.commitRecords();      // this needed to commit bird records first?
-          ONRTest.BirdApp.createAbbreviations(this._tmpBird);
-          ONRTest.BirdApp.createFeederObservations(this._tmpBird);
-          //this._tmpBird = null;
-          return YES;
-        }
-        else return NO;
       }
     });
   },
@@ -451,15 +474,11 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     //
     // Each item in the data contains information about a single
     // bird.  Calls are made to the controllers, to the respective 
-    // addBird(), addFeederObservation(), and addAbbreviation() functions, 
+    // addBird(), createFeederObservation(), and createAbbreviation() functions, 
     // which make createRecord requests, in logic based on creating the
-    // master objects first, and using callbacks for control, waiting 
-    // until the master records are READY_CLEAN before creating the other
-    // records and setting relations among them.
-    //
-    // In the models, Bird is the master, having toMany relations with
-    // the Abbreviation and FeederObservation. The inverse is that each
-    // abbreviation and feederObservation has a bird reference.
+    // master bird objects last, and using callbacks for control, waiting 
+    // until the abbreviation and feederObservation records are READY_CLEAN 
+    // before creating the master bird record and setting relations.
     //
     // At one point in development, this simple list of records was kept, 
     // to know when all have been created, before continuing with test 
@@ -468,45 +487,9 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     //     In this test, 3 birds, 4 feederOperations, and 6 abbreviations
     //     will be created, for a total of 13 records.
     //
+
     for (var commonName in this.data){
-      var taxonomy = this.data[commonName]['taxonomy'];
-
-      // abbreviations and feederObservations for each bird (see data) are
-      // added by callbacks that wait for each bird record to be loaded first.
-      var bird = this.controllers['bird'].addBird({ commonName: commonName,
-                                                    genus:      taxonomy.genus,
-                                                    species:    taxonomy.species });
-      this.data[commonName]['records']['bird'] = bird;
-    }
-  },
-
-  createFeederObservations: function(bird){
-    var feederObservations = this.data[bird.get('commonName')]['feederObservations'];
-
-    for (var i=0,len=feederObservations.length; i<len; i++){
-      var feederObservation = this.controllers['feederObservation'].addFeederObservation({
-        season:                     feederObservations[i].season,
-        region:                     feederObservations[i].region,
-        rank:                       feederObservations[i].rank,
-        percentageOfFeedersVisited: feederObservations[i].percentageOfFeedersVisited,
-        meanGroupSizeWhenSeen:      feederObservations[i].meanGroupSizeWhenSeen,
-        feederwatchAbundanceIndex:  feederObservations[i].feederwatchAbundanceIndex,
-        bird:                       bird });
-
-      this.data[bird.get('commonName')]['records']['feederObservations'].push(feederObservation);
-    }
-  },
-
-  createAbbreviations: function(bird){
-    var abbreviations = this.data[bird.get('commonName')]['abbreviations'];
-
-    for (var i=0,len=abbreviations.length; i<len; i++){
-      var abbreviation = this.controllers['abbreviation'].addAbbreviation({
-        type: abbreviations[i].type,
-        text: abbreviations[i].text,
-        bird: bird });
-
-      this.data[bird.get('commonName')]['records']['abbreviations'].push(abbreviation);
+      this.controllers['feederObservation'].createFeederObservations(commonName);
     }
   },
 
