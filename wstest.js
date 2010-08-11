@@ -116,15 +116,15 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     text:   SC.Record.attr(String),
 
     bird: SC.Record.toOne("ONRTest.BirdApp.Bird", 
-                          { inverse: "abbreviations", isMaster: NO }),
+                          { inverse: "abbreviations", isMaster: NO })
 
-    // A callback firing on status === READY_CLEAN
-    _statusObs: function(){ 
-      var status = this.get('status'); 
-      if (status && status === SC.Record.READY_CLEAN){ 
-        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
-      }
-    }.observes('status')
+//    // A callback firing on status === READY_CLEAN
+//    _statusObs: function(){ 
+//      var status = this.get('status'); 
+//      if (status && status === SC.Record.READY_CLEAN){ 
+//        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
+//      }
+//    }.observes('status')
   }),
 
   FeederObservation: SC.Record.extend({
@@ -138,23 +138,23 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
     bird: SC.Record.toOne("ONRTest.BirdApp.Bird", 
                           { inverse: "feederObservations",
-                            isMaster: NO }),
+                            isMaster: NO })
 
-    // A callback firing on bird !=== undefined
-    _birdObs: function(){ 
-      var bird = this.get('bird'); 
-      if (bird){ 
-        ONRTest.BirdApp.birdSetCall(this.get('storeKey')); 
-      }
-    }.observes('bird'),
+//    // A callback firing on bird !=== undefined
+//    _birdObs: function(){ 
+//      var bird = this.get('bird'); 
+//      if (bird){ 
+//        ONRTest.BirdApp.birdSetCall(this.get('storeKey')); 
+//      }
+//    }.observes('bird'),
 
-    // A callback firing on status === READY_CLEAN
-    _statusObs: function(){ 
-      var status = this.get('status'); 
-      if (status && status === SC.Record.READY_CLEAN){ 
-        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
-      }
-    }.observes('status')
+//    // A callback firing on status === READY_CLEAN
+//    _statusObs: function(){ 
+//      var status = this.get('status'); 
+//      if (status && status === SC.Record.READY_CLEAN){ 
+//        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
+//      }
+//    }.observes('status')
   }),
 
   Bird: SC.Record.extend({
@@ -210,6 +210,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   },
 
   // readyCall will fire when the status of any record changes to READY_CLEAN.
+  //   (Trying to get a look at relations...)
   readyCall: function(storeKey){
     var recordType = SC.Store.recordTypeFor(storeKey);
     var id = ONRTest.BirdApp.store.idFor(storeKey);
@@ -468,7 +469,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     //     will be created, for a total of 13 records.
     //
     for (var commonName in this.data){
-      var taxonomy           = this.data[commonName]['taxonomy'];
+      var taxonomy = this.data[commonName]['taxonomy'];
 
       // abbreviations and feederObservations for each bird (see data) are
       // added by callbacks that wait for each bird record to be loaded first.
@@ -498,6 +499,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
   createAbbreviations: function(bird){
     var abbreviations = this.data[bird.get('commonName')]['abbreviations'];
+
     for (var i=0,len=abbreviations.length; i<len; i++){
       var abbreviation = this.controllers['abbreviation'].addAbbreviation({
         type: abbreviations[i].type,
