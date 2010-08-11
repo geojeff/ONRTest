@@ -61,15 +61,11 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   // references stored here.
   models: {},
 
-  // References to records that will be created.
-  birds: [],
-  abbreviations: [],
-  feederObservations: [],
-
   //
   // Data for birds, feeder observations, and abbreviations were
   // put into hashes to allow convenient creation of data in special
-  // callback functions that call controllers.
+  // callback functions that call controllers. There is also a hash
+  // within to hold records that are created from the data.
   //
   data: { "Eastern Towhee":     { taxonomy: { genus: "Pipilo", species: "erythrophthalmus"},
                                   feederObservations: [{ season: "2008-2009", 
@@ -79,7 +75,10 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                                                          meanGroupSizeWhenSeen: 1.49, 
                                                          feederwatchAbundanceIndex: 0.25}],
                                   abbreviations: [{ type: 'fourLetter', text: "EATO" }, 
-                                                  { type: 'sixLetter', text: "PIPERP" }]},
+                                                  { type: 'sixLetter', text: "PIPERP" }],
+                                  records: { bird: null,
+                                             abbreviations: [],
+                                             feederObservations: []}},
           "House Finch":        { taxonomy: { genus: "Carpodacus", species: "mexicanus"},
                                   feederObservations: [{ season: "2008-2009",        // Two for House Finch
                                                          region: "Southeastern US", 
@@ -94,7 +93,10 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                                                          meanGroupSizeWhenSeen: 3.58, 
                                                          feederwatchAbundanceIndex: 1.23}],
                                    abbreviations: [{ type: 'fourLetter', text: "HOFI"}, 
-                                                   { type: 'sixLetter', text: "CARMEX"}]},
+                                                   { type: 'sixLetter', text: "CARMEX"}],
+                                   records: { bird: null,
+                                              abbreviations: [],
+                                              feederObservations: []}},
           "Ruby-crowned Kinglet": { taxonomy: { genus: "Regulus", species: "calendula"},
                                     feederObservations: [{ season: "2008-2009", 
                                                            region: "South Central US", 
@@ -103,7 +105,10 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                                                            meanGroupSizeWhenSeen: 1.17, 
                                                            feederwatchAbundanceIndex: 0.14}],
                                     abbreviations: [{ type: 'fourLetter', text: "RCKI"}, 
-                                                    { type: 'sixLetter', text: "REGCAL"}]}},
+                                                    { type: 'sixLetter', text: "REGCAL"}],
+                                    records: { bird: null,
+                                               abbreviations: [],
+                                               feederObservations: []}}},
   // Model definitions
   Abbreviation: SC.Record.extend({
     bucket: 'abbreviation',
@@ -470,7 +475,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       var bird = this.controllers['bird'].addBird({ commonName: commonName,
                                                     genus:      taxonomy.genus,
                                                     species:    taxonomy.species });
-      this.birds.push(bird);
+      this.data[commonName]['records']['bird'] = bird;
     }
   },
 
@@ -487,7 +492,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         feederwatchAbundanceIndex:  feederObservations[i].feederwatchAbundanceIndex,
         bird:                       bird });
 
-      this.feederObservations.push(feederObservation);
+      this.data[bird.get('commonName')]['records']['feederObservations'].push(feederObservation);
     }
   },
 
@@ -499,7 +504,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         text: abbreviations[i].text,
         bird: bird });
 
-      this.abbreviations.push(abbreviation);
+      this.data[bird.get('commonName')]['records']['abbreviations'].push(abbreviation);
     }
   },
 
