@@ -542,13 +542,16 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       var abbreviations = bird.get('abbreviations');
       console.log(abbreviations.length());
       for (var i=0,len=abbreviations.length(); i<len; i++){
-        console.log('blah');
-        console.log('    ' + abbreviations[i].get('text'));
+        if (abbreviations[i]){
+          console.log('    ' + abbreviations[i].get('text'));
+        }
       }
       console.log('  Feeder Observations:');
       var feederObservations = bird.get('feederObservations');
       for (i=0,len=feederObservations.length(); i<len; i++){
-        console.log('    ' + feederObservations[i].get('region'));
+        if (feederObservations[i]){
+          console.log('    ' + feederObservations[i].get('region'));
+        }
       }
     }
     ONRTest.BirdApp.finish();
