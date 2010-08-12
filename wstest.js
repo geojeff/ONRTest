@@ -111,9 +111,10 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                                                feederObservations: []}}},
   // Model definitions
   Abbreviation: SC.Record.extend({
-    bucket: 'abbreviation',
-    type:   SC.Record.attr(String),
-    text:   SC.Record.attr(String),
+    primaryKey:  'key',
+    bucket:      'abbreviation',
+    type:        SC.Record.attr(String),
+    text:        SC.Record.attr(String),
 
     bird: SC.Record.toOne("ONRTest.BirdApp.Bird", 
                           { inverse: "abbreviations", isMaster: NO })
@@ -128,6 +129,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   }),
 
   FeederObservation: SC.Record.extend({
+    primaryKey:                 'key',
     bucket:                     'feederObservation',
     season:                     SC.Record.attr(String),
     region:                     SC.Record.attr(String),
@@ -158,6 +160,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   }),
 
   Bird: SC.Record.extend({
+    primaryKey:  'key',
     bucket:      'bird',
     commonName:  SC.Record.attr(String),
     genus:       SC.Record.attr(String),
@@ -456,19 +459,21 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
               console.log('HAVE BIRD ' + bird.get('commonName'));
               for (var i=0,len=feederObservations.length; i<len; i++){
                 console.log('PUSHING ' + feederObservations[i].get('region'));
-                feederObservationsInBird.pushObject(feederObservations[i]);
+                //console.log('PUSHING ' + SC.inspect(feederObservations[i]));
+                bird.get('feederObservations').pushObject(feederObservations[i]);
               }
 
               var abbreviations = ONRTest.BirdApp.data[commonName]['records']['abbreviations'];
               var abbreviationsInBird = bird.get('abbreviations');
               for (i=0,len=abbreviations.length; i<len; i++){
                 console.log('PUSHING ' + abbreviations[i].get('text'));
-                abbreviationsInBird.pushObject(abbreviations[i]);
+                bird.get('abbreviations').pushObject(abbreviations[i]);
               }
 
               ONRTest.BirdApp.store.commitRecords();
 
-              setTimeout(ONRTest.BirdApp.checkBirds, 30000);
+              //ONRTest.BirdApp.checkBirds();
+              setTimeout(ONRTest.BirdApp.checkBirds, 10000);
             }
             return YES;
           }
