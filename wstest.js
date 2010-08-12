@@ -463,6 +463,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                 abbreviationsInBird.pushObject(abbreviations[i]);
               }
 
+              ONRTest.BirdApp.store.commitRecords();
+
               ONRTest.BirdApp.checkBirds();
             }
             return YES;
