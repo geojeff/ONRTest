@@ -453,19 +453,22 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
               var feederObservations = ONRTest.BirdApp.data[commonName]['records']['feederObservations'];
               var feederObservationsInBird = bird.get('feederObservations');
+              console.log('HAVE BIRD ' + bird.get('commonName'));
               for (var i=0,len=feederObservations.length; i<len; i++){
+                console.log('PUSHING ' + feederObservations[i].get('region'));
                 feederObservationsInBird.pushObject(feederObservations[i]);
               }
 
               var abbreviations = ONRTest.BirdApp.data[commonName]['records']['abbreviations'];
               var abbreviationsInBird = bird.get('abbreviations');
               for (i=0,len=abbreviations.length; i<len; i++){
+                console.log('PUSHING ' + abbreviations[i].get('text'));
                 abbreviationsInBird.pushObject(abbreviations[i]);
               }
 
               ONRTest.BirdApp.store.commitRecords();
 
-              ONRTest.BirdApp.checkBirds();
+              setTimeout(ONRTest.BirdApp.checkBirds, 30000);
             }
             return YES;
           }
@@ -527,8 +530,8 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
   checkBirds: function(){
     console.log('in CHECKBIRDS');
-    for (var commonName in this.data){
-      var bird = this.data[commonName]['records']['bird'];
+    for (var commonName in ONRTest.BirdApp.data){
+      var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
       console.log('  Abbreviations:');
       for (var i=0,len=bird.abbreviations.length; i<length; i++){
         console.log('    ' + bird.abbreviations[i].get('text'));
@@ -538,7 +541,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         console.log('    ' + bird.feederObservations[i].get('region'));
       }
     }
-    this.finish();
+    ONRTest.BirdApp.finish();
   },
 
   // 
