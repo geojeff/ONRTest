@@ -347,11 +347,12 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       generateCheckFeederObservations: function(commonName,feederObservation){
         var me = this;
         return function(val){
-          console.log('checking FeederObservations ');
+          console.log('checking FeederObservations ' + commonName + '/' + val);
           if (val & SC.Record.READY_CLEAN){
             me._tmpRecordCache[commonName].push(feederObservation);
             ONRTest.BirdApp.data[commonName]['records']['feederObservations'].push(feederObservation);
             me._tmpRecordCountCache[commonName]--;
+            console.log('checking FeederObservations ' + commonName + '/' + me._tmpRecordCountCache[commonName]);
             if (me._tmpRecordCountCache[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
               delete me._tmpRecordCountCache[commonName];
@@ -380,9 +381,9 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
             "meanGroupSizeWhenSeen":      feederObservations[i].meanGroupSizeWhenSeen,
             "feederwatchAbundanceIndex":  feederObservations[i].feederwatchAbundanceIndex});
 
-          ONRTest.BirdApp.store.commitRecords();
-
           feederObservation.addFiniteObserver('status',this,this.generateCheckFeederObservations(commonName,feederObservation),this);
+
+          ONRTest.BirdApp.store.commitRecords();
         }
       },
 
@@ -395,7 +396,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       generateCheckAbbreviations: function(commonName,abbreviation){
         var me = this;
         return function(val){
-          console.log('checking Abbreviations ');
+          console.log('checking Abbreviations ' + commonName);
           if (val & SC.Record.READY_CLEAN){
             me._tmpRecordCache[commonName].push(abbreviation);
             ONRTest.BirdApp.data[commonName]['records']['abbreviations'].push(abbreviation);
@@ -437,34 +438,65 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     });
 
     this.controllers['bird'] = SC.ArrayController.create({
+      generateSetRelations: function(commonName,bird){
+        var me = this;
+        return function(val){
+          if (val & SC.Record.READY_CLEAN){
+            console.log('checking Bird ' + commonName);
+            me._tmpRecordCache[commonName].push(bird);
+            me._tmpRecordCountCache[commonName]--;
+            if (me._tmpRecordCountCache[commonName] === 0){
+              delete me._tmpRecordCache[commonName]; // delete the old contents
+              delete me._tmpRecordCountCache[commonName];
+
+              var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
+
+              var feederObservations = ONRTest.BirdApp.data[commonName]['records']['feederObservations'];
+              var feederObservationsInBird = bird.get('feederObservations');
+              for (var i=0,len=feederObservations.length; i<len; i++){
+                feederObservationsInBird.pushObject(feederObservations[i]);
+              }
+
+              var abbreviations = ONRTest.BirdApp.data[commonName]['records']['abbreviations'];
+              var abbreviationsInBird = bird.get('abbreviations');
+              for (i=0,len=abbreviations.length; i<len; i++){
+                abbreviationsInBird.pushObject(abbreviations[i]);
+              }
+
+              ONRTest.BirdApp.checkBirds();
+            }
+            return YES;
+          }
+          else return NO;
+        };
+      },
+ 
       createBird: function(commonName){
+        console.log('createBird ' + commonName);
         var taxonomy = ONRTest.BirdApp.data[commonName]['taxonomy'];
 
+        this._tmpRecordCache[commonName] = [];
+        this._tmpRecordCountCache[commonName] = 1;
+            
         var bird;
         bird = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.Bird, {
           "commonName": commonName,
           "genus":      taxonomy.genus,
           "species":    taxonomy.species
         });
-    
-        var feederObservations = ONRTest.BirdApp.data[commonName]['records']['feederObservations'];
-        var feederObservationsInBird = bird.get('feederObservations');
-        for (var i=0,len=feederObservations.length; i<len; i++){
-          feederObservationsInBird.pushObject(feederObservations[i]);
-        }
-
-        var abbreviations = ONRTest.BirdApp.data[commonName]['records']['abbreviations'];
-        var abbreviationsInBird = bird.get('abbreviations');
-        for (i=0,len=abbreviations.length; i<len; i++){
-          abbreviationsInBird.pushObject(abbreviations[i]);
-        }
 
         ONRTest.BirdApp.store.commitRecords();
 
         ONRTest.BirdApp.data[commonName]['records']['bird'] = bird;
 
+        bird.addFiniteObserver('status',this,this.generateSetRelations(commonName,bird),this);
+
         return bird;
-      }
+      },
+
+      _tmpRecordCache: {},
+      _tmpRecordCountCache: {}
+
     });
   },
          
@@ -491,22 +523,21 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     }
   },
 
-//  checkBirds: function(){
-//    console.log('in CHECKBIRDS');
-//    for (var i=0,len=ONRTest.BirdApp.birds.length; i<len; i++){
-//      if (ONRTest.BirdApp.birds[i].isLoaded){
-//        console.log(ONRTest.BirdApp.birds[i].get('commonName'));
-//        console.log('  Abbreviations:');
-//        for (var j=0,length=ONRTest.BirdApp.birds[i].abbreviations.length; j<length; j++){
-//          console.log('    ' + ONRTest.BirdApp.birds[i].abbreviations[j].get('text'));
-//        }
-//        console.log('  Feeder Observations:');
-//        for (j=0,length=ONRTest.BirdApp.birds[i].feederObservations.length; j<length; j++){
-//          console.log('    ' + ONRTest.BirdApp.birds[i].feederObservations[j].get('region'));
-//        }
-//      }
-//    }
-//  }.observes(bird.isLoaded),
+  checkBirds: function(){
+    console.log('in CHECKBIRDS');
+    for (var commonName in this.data){
+      var bird = this.data[commonName]['records']['bird'];
+      console.log('  Abbreviations:');
+      for (var i=0,len=bird.abbreviations.length; i<length; i++){
+        console.log('    ' + bird.abbreviations[i].get('text'));
+      }
+      console.log('  Feeder Observations:');
+      for (i=0,len=bird.feederObservations.length; i<length; i++){
+        console.log('    ' + bird.feederObservations[i].get('region'));
+      }
+    }
+    this.finish();
+  },
 
   // 
   // Tear-down

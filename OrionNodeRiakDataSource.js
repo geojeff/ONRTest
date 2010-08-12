@@ -88,6 +88,39 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
       else return false;
    },
    
+   _pane: null,
+   
+   showErrorMessage: function(message){
+      var me = this;
+      var sheet = SC.SheetPane.create({
+         layout: { width:350, height: 150, centerX: 0 },
+         contentView: SC.View.extend({
+            layout: { top: 0, right: 0, bottom: 0, left: 0 },
+            childViews: "questionLabel okButton".w(),
+
+            questionLabel: SC.LabelView.design({
+               layout: { top: 30, height: 75, width: 300, centerX: 0 },
+               textAlign: SC.ALIGN_CENTER,
+               value: message
+            }),
+
+            okButton: SC.ButtonView.design({
+               layout: { bottom: 20, height: 25, width: 100, centerX: 0 },
+               title: 'Ok',
+               action: 'closeErrorMessage',
+               target: me
+            })
+         })
+      });
+      this._pane = sheet;
+      sheet.append();
+   },
+   
+   closeErrorMessage: function(){
+      this._pane.remove();
+      this._pane = null; 
+   },
+   
    createOnOpenHandler: function(callback){ // to create an onOpen callback
       var me = this;
       return function(event){
@@ -105,7 +138,7 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
          // whether websocket is the best way to do binary data... 
          // if there is any binary data, there will be trouble...
          if(event.data){
-            //console.log("data in event: " + event.data);
+            console.log("data in event: " + event.data);
             var messages = JSON.parse(event.data);
             if(messages){
                // check if messages is an array, if not, make one
@@ -230,6 +263,11 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
       if(data.updateRecordResult) this.onUpdateRecordResult(data);
       if(data.deleteRecordResult) this.onDeleteRecordResult(data);
       if(data.refreshRecordResult) this.onRefreshRecordResult(data);
+      if(data.fetchError) this.onFetchError(data);
+      if(data.refreshRecordError) this.onRefreshRecordError(data);
+      if(data.createRecordError) this.onCreateRecordError(data);
+      if(data.updateRecordError) this.onUpdateRecordError(data);
+      if(data.deleteRecordError) this.onDeleteRecordError(data);
    },
    
    /*
@@ -291,12 +329,10 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
       ======
       Record fetch + callback
       ======
-   */
-   
-   /*
+
       Loading records in batches is rather difficult, especially as in our case the relations arrive
       at a different time. 
-      I contemplated two different appraoches:
+      I contemplated two different approaches:
       1. load the records in the store as soon as they arrive, retrieve the records when the relations arrive, and
          update them accordingly.
       2. store the records temporarily until the relations arrive, add the relations to the record data and
@@ -326,7 +362,6 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
    
    loadRecord: function(store,recordType,storeKey,dataHash,isComplete) {
       // copy this behaviour from dataSource did complete and pushRetrieve
-      //SC.RunLoop.begin();
       var id = dataHash.id || dataHash.key; // when id doesn't exist, try key
       var status, K = SC.Record;
       if(id){
@@ -361,7 +396,6 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
       else {
          throw "Whoops, uploading a record without ID??";
       }
-      //SC.RunLoop.end();
    },
    
    /*
@@ -475,6 +509,25 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
       // the query is declared finished as soon as all expected responses are received (by onFetchResult)
       var recArray = store._findQuery(this._requestCache[requestKey].query, YES, NO);
       if (recArray) recArray.set('storeKeys', storeKeys);      
+   },
+   
+   onFetchError: function(data){
+      //function to handle ONR error messages for fetch
+      var fetchError = data.fetchError;
+      if(fetchError){
+         var errorCode = fetchError.errorCode;
+         var requestKey = fetchError.requestData.requestKey;
+         var curRequestData = this._requestCache[requestKey];
+         var message;
+         switch(errorCode){
+            case 0: message = "The policy settings on the server don't allow you to fetch these records"; break;
+         }
+         var query = curRequestData.query;
+         var store = curRequestData.store;
+         store.dataSourceDidErrorQuery(query);
+         delete this._requestData[requestKey];
+         this.showErrorMessage(message);
+      }
    },
    
    onFetchResult: function(data){
@@ -726,10 +779,6 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
    
    retrieveRecord: function(store,storeKey,id){
       var recType = store.recordTypeFor(storeKey);
-      if(!id){
-         //console.log("It seems you are trying to retrieve a record from a relation of which the opposite side hasn't been loaded yet");
-         // retrieve all records of this type instead?
-      }
       var relations = this._getRelationsArray(recType);
       var recordId = id? id: store.idFor(storeKey);
       // do we need a requestCache? Yes we do, as we need the store info, and in case of relations
@@ -753,6 +802,25 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
       };
       this.send(request);
       return YES;
+   },
+   
+   onRefreshRecordError: function(data){
+      //function to handle ONR error messages for fetch
+      var refreshRecordError = data.refreshRecordError;
+      if(refreshRecordError){
+         var errorCode = refreshRecordError.errorCode;
+         var requestKey = refreshRecordError.requestData.requestKey;
+         var curRequestData = this._requestCache[requestKey];
+         var message;
+         switch(errorCode){
+            case 0: message = "The policy settings on the server don't allow you to refresh this record"; break;
+         }
+         var storeKey = curRequestData.storeKey;
+         var store = curRequestData.store;
+         store.dataSourceDidError(storeKey);
+         delete this._requestData[requestKey];
+         this.showErrorMessage(message);
+      }
    },
    
    onRefreshRecordResult: function(data){
@@ -838,8 +906,28 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
       return YES;
    },
    
+   onCreateRecordError: function(data){
+      //function to handle ONR error messages for fetch
+      var createRecordError = data.createRecordError;
+      if(createRecordError){
+         var errorCode = createRecordError.errorCode;
+         var requestKey = createRecordError.requestData.requestKey;
+         var curRequestData = this._requestCache[requestKey];
+         var message;
+         switch(errorCode){
+            case 0: message = "The policy settings on the server don't allow you to create this record"; break;
+         }
+         var storeKey = curRequestData.storeKey;
+         var store = curRequestData.store;
+         store.dataSourceDidError(storeKey);
+         delete this._requestData[requestKey];
+         this.showErrorMessage(message);
+      }
+   },
+   
    onCreateRecordResult: function(data){
       // function to process the data from the server when a createRecord call has been made to the server
+      console.log('ONR onCreateRecordResult: ' + JSON.stringify(data));
       var createRecordResult = data.createRecordResult;
       var requestCacheKey = createRecordResult.returnData.requestCacheKey;
       var requestCache = this._requestCache[requestCacheKey];
@@ -884,61 +972,26 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
        var request = { updateRecord: { bucket: bucket, key: key, record: dataToSend, relations: relations, returnData: returnData }};
        this.send(request);
        return YES;
-   },
-   
-/*   
-   onUpdateRecordResult: function(data){
-      console.log("Received update: " + JSON.stringify(data));
-      // function to process the data from the server when an updateRecord call has been made to the server     
-      // unlike the createRecord the relations update are a separate message, so we have to take that into account
-      var updateResult = data.updateRecordResult;
-      var requestCacheKey = updateResult.returnData.requestCacheKey;
-      var requestCache = this._requestCache[requestCacheKey];
-      var record = updateResult.record;
-      var unsavedRelations = requestCache.unsavedRelations;
-      var relationSet = updateResult.relationSet;
-      var store = requestCache.store;
-      var mergedRecord,isComplete;
-      var recType = store.recordTypeFor(requestCache.storeKey);
-      if(!requestCache.record && relationSet){
-         // no record in the cache, so we are getting a relationSet 
-         if(unsavedRelations && (unsavedRelations instanceof Array)){
-            this._requestCache[requestCacheKey].unsavedRelations = unsavedRelations.concat(relationSet); // still wondering whether this works the way I think it does
+   },   
+
+   onUpdateRecordError: function(data){
+      //function to handle ONR error messages for update
+      var updateRecordError = data.updateRecordError;
+      if(updateRecordError){
+         var errorCode = updateRecordError.errorCode;
+         var requestKey = updateRecordError.requestData.requestKey;
+         var curRequestData = this._requestCache[requestKey];
+         var message;
+         switch(errorCode){
+            case 0: message = "The policy settings on the server don't allow you to update this record"; break;
          }
-         else {
-            this._requestCache[requestCacheKey].unsavedRelations = relationSet;
-         }
-         unsavedRelations = this._requestCache[requestCacheKey].unsavedRelations; // be sure to update the unsavedRelations
-         this._requestCache[requestCacheKey].numResponses--;
-         console.log('subtracting one from numResponses, responses left: ' + this._requestCache[requestCacheKey].numResponses);
-      }
-      if(record){
-         // there is a record in the update result message
-         // check whether there are unsaved relations, unsavedRelations can be safely used, as it was updated
-         mergedRecord  = unsavedRelations? this._processRelationSet([record],unsavedRelations)[0]: record;
-         this._requestCache[requestCacheKey].record = mergedRecord;
-         //loadRecord: function(store,recordType,storeKey,dataHash,isComplete) {
-         isComplete = (this._requestCache[requestCacheKey].numResponses < 2)? YES: NO;
-         this.loadRecord(store,recType,requestCache.storeKey,mergedRecord, isComplete);
-         this._requestCache[requestCacheKey].numResponses--;
-         console.log('subtracting one from numResponses, responses left: ' + this._requestCache[requestCacheKey].numResponses);
-      }
-      if(relationSet && this._requestCache[requestCacheKey].record){
-         // update the record with the relation set arriving
-         mergedRecord = this._processRelationSet([record],relationSet)[0];
-         this._requestCache[requestCacheKey].record = mergedRecord;
-         isComplete = (this._requestCache[requestCacheKey].numResponses < 2)? YES: NO;
-         this.loadRecord(store,recType,requestCache.storeKey,mergedRecord, isComplete);
-         this._requestCache[requestCacheKey].numResponses--;
-         console.log('subtracting one from numResponses, responses left: ' + this._requestCache[requestCacheKey].numResponses);
-      }
-      if(this._requestCache[requestCacheKey].numResponses === 0){
-         // destroy the cache
-         // no need for dataSourceDidComplete as our loadRecord has already taken care...
-         delete this._requestCache[requestCacheKey];
+         var storeKey = curRequestData.storeKey;
+         var store = curRequestData.store;
+         store.dataSourceDidError(storeKey);
+         delete this._requestData[requestKey];
+         this.showErrorMessage(message);
       }
    },
-   */
    
    onUpdateRecordResult: function(data){
       console.log("Received update: " + JSON.stringify(data));
@@ -980,6 +1033,25 @@ SC.OrionNodeRiakDataSource = SC.DataSource.extend({
       var request = { deleteRecord: { bucket: bucket, key: key, record: recordData, relations: relations }};
       this.send(request);
       return YES;
+   },
+   
+   onDeleteRecordError: function(data){
+      //function to handle ONR error messages for delete
+      var deleteRecordError = data.deleteRecordError;
+      if(deleteRecordError){
+         var errorCode = deleteRecordError.errorCode;
+         var requestKey = deleteRecordError.requestData.requestKey;
+         var curRequestData = this._requestCache[requestKey];
+         var message;
+         switch(errorCode){
+            case 0: message = "The policy settings on the server don't allow you to delete this record"; break;
+         }
+         var storeKey = curRequestData.storeKey;
+         var store = curRequestData.store;
+         store.dataSourceDidError(storeKey);
+         delete this._requestData[requestKey];
+         this.showErrorMessage(message);
+      }
    },
    
    onDeleteRecordResult: function(data){
