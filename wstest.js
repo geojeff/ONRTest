@@ -441,11 +441,11 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     });
 
     this.controllers['bird'] = SC.ArrayController.create({
-      generateSetRelations: function(commonName,bird){
+      generateSetRelations: function(commonName){
         var me = this;
         return function(val){
           if (val & SC.Record.READY_CLEAN){
-            console.log('checking Bird ' + commonName);
+            console.log('setting relations for Bird ' + commonName);
             me._tmpRecordCache[commonName].push(bird);
             me._tmpRecordCacheCount[commonName]--;
             if (me._tmpRecordCacheCount[commonName] === 0){
@@ -470,6 +470,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                 bird.get('abbreviations').pushObject(abbreviations[i]);
               }
 
+              //debugger;
               ONRTest.BirdApp.store.commitRecords();
 
               //ONRTest.BirdApp.checkBirds();
@@ -499,7 +500,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
 
         ONRTest.BirdApp.data[commonName]['records']['bird'] = bird;
 
-        bird.addFiniteObserver('status',this,this.generateSetRelations(commonName,bird),this);
+        bird.addFiniteObserver('status',this,this.generateSetRelations(commonName),this);
 
         return bird;
       },
