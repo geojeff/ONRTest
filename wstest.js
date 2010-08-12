@@ -351,11 +351,11 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           if (val & SC.Record.READY_CLEAN){
             me._tmpRecordCache[commonName].push(feederObservation);
             ONRTest.BirdApp.data[commonName]['records']['feederObservations'].push(feederObservation);
-            me._tmpRecordCountCache[commonName]--;
-            console.log('checking FeederObservations ' + commonName + '/' + me._tmpRecordCountCache[commonName]);
-            if (me._tmpRecordCountCache[commonName] === 0){
+            me._tmpRecordCacheCount[commonName]--;
+            console.log('checking FeederObservations ' + commonName + '/' + me._tmpRecordCacheCount[commonName]);
+            if (me._tmpRecordCacheCount[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
-              delete me._tmpRecordCountCache[commonName];
+              delete me._tmpRecordCacheCount[commonName];
               ONRTest.BirdApp.controllers['abbreviation'].createAbbreviations(commonName);
             }
             return YES;
@@ -369,7 +369,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         var feederObservations = ONRTest.BirdApp.data[commonName]['feederObservations'];
     
         this._tmpRecordCache[commonName] = [];
-        this._tmpRecordCountCache[commonName] = feederObservations.length;
+        this._tmpRecordCacheCount[commonName] = feederObservations.length;
             
         for (var i=0,len=feederObservations.length; i<len; i++){
           var feederObservation;
@@ -388,7 +388,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       },
 
       _tmpRecordCache: {},
-      _tmpRecordCountCache: {}
+      _tmpRecordCacheCount: {}
 
     });
         
@@ -400,10 +400,10 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           if (val & SC.Record.READY_CLEAN){
             me._tmpRecordCache[commonName].push(abbreviation);
             ONRTest.BirdApp.data[commonName]['records']['abbreviations'].push(abbreviation);
-            me._tmpRecordCountCache[commonName]--;
-            if (me._tmpRecordCountCache[commonName] === 0){
+            me._tmpRecordCacheCount[commonName]--;
+            if (me._tmpRecordCacheCount[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
-              delete me._tmpRecordCountCache[commonName];
+              delete me._tmpRecordCacheCount[commonName];
               ONRTest.BirdApp.controllers['bird'].createBird(commonName);
             }
             return YES;
@@ -417,7 +417,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         var abbreviations = ONRTest.BirdApp.data[commonName]['abbreviations'];
     
         this._tmpRecordCache[commonName] = [];
-        this._tmpRecordCountCache[commonName] = abbreviations.length;
+        this._tmpRecordCacheCount[commonName] = abbreviations.length;
             
         for (var i=0,len=abbreviations.length; i<len; i++){
           var abbreviation;
@@ -433,7 +433,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       },
 
       _tmpRecordCache: {},
-      _tmpRecordCountCache: {}
+      _tmpRecordCacheCount: {}
 
     });
 
@@ -444,10 +444,10 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
           if (val & SC.Record.READY_CLEAN){
             console.log('checking Bird ' + commonName);
             me._tmpRecordCache[commonName].push(bird);
-            me._tmpRecordCountCache[commonName]--;
-            if (me._tmpRecordCountCache[commonName] === 0){
+            me._tmpRecordCacheCount[commonName]--;
+            if (me._tmpRecordCacheCount[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
-              delete me._tmpRecordCountCache[commonName];
+              delete me._tmpRecordCacheCount[commonName];
 
               var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
 
@@ -478,7 +478,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
         var taxonomy = ONRTest.BirdApp.data[commonName]['taxonomy'];
 
         this._tmpRecordCache[commonName] = [];
-        this._tmpRecordCountCache[commonName] = 1;
+        this._tmpRecordCacheCount[commonName] = 1;
             
         var bird;
         bird = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.Bird, {
@@ -497,7 +497,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
       },
 
       _tmpRecordCache: {},
-      _tmpRecordCountCache: {}
+      _tmpRecordCacheCount: {}
 
     });
   },
