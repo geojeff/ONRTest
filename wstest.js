@@ -111,7 +111,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                                                feederObservations: []}}},
   // Model definitions
   Abbreviation: SC.Record.extend({
-    primaryKey:  'key',
+    //primaryKey:  'key',
     bucket:      'abbreviation',
     type:        SC.Record.attr(String),
     text:        SC.Record.attr(String),
@@ -129,7 +129,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   }),
 
   FeederObservation: SC.Record.extend({
-    primaryKey:                 'key',
+    //primaryKey:                 'key',
     bucket:                     'feederObservation',
     season:                     SC.Record.attr(String),
     region:                     SC.Record.attr(String),
@@ -160,7 +160,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
   }),
 
   Bird: SC.Record.extend({
-    primaryKey:  'key',
+    //primaryKey:  'key',
     bucket:      'bird',
     commonName:  SC.Record.attr(String),
     genus:       SC.Record.attr(String),
@@ -537,13 +537,18 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     console.log('in CHECKBIRDS');
     for (var commonName in ONRTest.BirdApp.data){
       var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
+      console.log(bird.get('commonName'));
       console.log('  Abbreviations:');
-      for (var i=0,len=bird.abbreviations.length; i<length; i++){
-        console.log('    ' + bird.abbreviations[i].get('text'));
+      var abbreviations = bird.get('abbreviations');
+      console.log(abbreviations.length());
+      for (var i=0,len=abbreviations.length(); i<length; i++){
+        console.log('blah');
+        console.log('    ' + abbreviations[i].get('text'));
       }
       console.log('  Feeder Observations:');
-      for (i=0,len=bird.feederObservations.length; i<length; i++){
-        console.log('    ' + bird.feederObservations[i].get('region'));
+      var feederObservations = bird.get('feederObservations');
+      for (i=0,len=feederObservations.length(); i<length; i++){
+        console.log('    ' + feederObservations[i].get('region'));
       }
     }
     ONRTest.BirdApp.finish();
