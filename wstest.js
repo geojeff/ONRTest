@@ -34,7 +34,7 @@ var ONRTest = SC.Object.create();
 // ONRTest.BirdAppBase is here because if ONRTest.BirdApp = SC.Object.extend(.. 
 // is used, the datasource will not instantiate properly. But if we use this 
 // base object, the instantiation works...
-ONRTest.BirdAppBase = SC.Object.extend({
+ONRTest.AppBase = SC.Object.extend({
   NAMESPACE: null,
   models: null,
   readyCall: null,
@@ -47,7 +47,7 @@ ONRTest.BirdAppBase = SC.Object.extend({
 });
 
 // Our simulated Sproutcore app, ONRTest.BirdApp:
-ONRTest.BirdApp = ONRTest.BirdAppBase.create({
+ONRTest.BirdApp = ONRTest.AppBase.create({
   // Simulating NAMESPACE for an SC app, set in core.js
   NAMESPACE: 'BirdApp',
 
@@ -314,7 +314,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
     var initDS = this.store._getDataSource(); 
 
     // Call auth. The data source contains a callback to the test() function.
-    this.store.dataSource.wsConnect(ONRTest.BirdApp.store,function(){ 
+    this.store.dataSource.connect(ONRTest.BirdApp.store,function(){ 
       ONRTest.BirdApp.store.dataSource.authRequest("test","test");
     });
 
@@ -460,6 +460,7 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
               for (var i=0,len=feederObservations.length; i<len; i++){
                 console.log('PUSHING ' + feederObservations[i].get('region'));
                 //console.log('PUSHING ' + SC.inspect(feederObservations[i]));
+                debugger;
                 bird.get('feederObservations').pushObject(feederObservations[i]);
               }
 
@@ -470,7 +471,6 @@ ONRTest.BirdApp = ONRTest.BirdAppBase.create({
                 bird.get('abbreviations').pushObject(abbreviations[i]);
               }
 
-              //debugger;
               ONRTest.BirdApp.store.commitRecords();
 
               //ONRTest.BirdApp.checkBirds();
