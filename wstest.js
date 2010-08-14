@@ -46,7 +46,7 @@ ONRTest.AppBase = SC.Object.extend({
   finish: null
 });
 
-// Our simulated Sproutcore app, ONRTest.BirdApp:
+// A simulated Sproutcore app, ONRTest.BirdApp, to test ONRWebsocketDataSource:
 ONRTest.BirdApp = ONRTest.AppBase.create({
   // Simulating NAMESPACE for an SC app, set in core.js
   NAMESPACE: 'BirdApp',
@@ -566,13 +566,50 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
   }
 });
 
+// A simulated Sproutcore app, ONRTest.BirdApp, to test ONRXHRPollingDataSource:
+ONRTest.PollingApp = ONRTest.AppBase.create({
+  NAMESPACE: 'PollingApp',
+  models: {},
+  data: {},
+  queries: {},
+  controllers: {},
+
+  dataSource: SC.OrionNodeRiakDataSource.extend({
+    authSuccessCallback: function(){
+      ONRTest.PollingApp.test();
+    }
+  }),
+
+  store: SC.Store.create({
+    //commitRecordsAutomatically: YES
+  }).from('ONRTest.PollingApp.dataSource'),
+
+  start: function(){
+    console.log("STARTING PollingApp");
+
+    // Create the data source if it doesn't exist already. (FORCE)
+    var initDS = this.store._getDataSource(); 
+
+    // Call auth. The data source contains a callback to the test() function.
+    this.store.dataSource.connect(ONRTest.PollingApp.store,function(){ 
+      ONRTest.PollingApp.store.dataSource.authRequest("test","test");
+    });
+  },
+
+  test: function(){
+    console.log('READY TO TEST POLLING');
+  }
+});
+
+
 ONRTest.start = function(){
   console.log("STARTING CLIENTS");
 
   this.clients = {};
   //this.clients['FetchKinglet'] = ONRTest.BirdApp;
   //this.clients['FetchFinch'] = ONRTest.BirdApp;
-  this.clients['BirdApp'] = ONRTest.BirdApp;
+  //this.clients['BirdApp'] = ONRTest.BirdApp;
+  this.clients['PollingApp'] = ONRTest.PollingApp;
 
   for (var clientName in ONRTest.clients){
     ONRTest.clients[clientName].start();
