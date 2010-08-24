@@ -67,51 +67,51 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
   // callback functions that call controllers. There is also a hash
   // within to hold records that are created from the data.
   //
-  data: { "Eastern Towhee":     { taxonomy: { genus: "Pipilo", species: "erythrophthalmus"},
-                                  feederObservations: [{ season: "2008-2009", 
+  data: { "Eastern Towhee":     { key: 1, taxonomy: { genus: "Pipilo", species: "erythrophthalmus"},
+                                  feederObservations: [{ key: 1, season: "2008-2009", 
                                                          region: "Southeastern US", 
                                                          rank: 17, 
                                                          percentageOfFeedersVisited: 49.60, 
                                                          meanGroupSizeWhenSeen: 1.49, 
                                                          feederwatchAbundanceIndex: 0.25}],
-                                  abbreviations: [{ type: 'fourLetter', text: "EATO" }, 
-                                                  { type: 'sixLetter', text: "PIPERP" }],
+                                  abbreviations: [{ key: 1, type: 'fourLetter', text: "EATO" }, 
+                                                  { key: 2, type: 'sixLetter', text: "PIPERP" }],
                                   records: { bird: null,
                                              abbreviations: [],
                                              feederObservations: []}},
-          "House Finch":        { taxonomy: { genus: "Carpodacus", species: "mexicanus"},
-                                  feederObservations: [{ season: "2008-2009",        // Two for House Finch
+          "House Finch":        { key: 2, taxonomy: { genus: "Carpodacus", species: "mexicanus"},
+                                  feederObservations: [{ key: 2, season: "2008-2009",        // Two for House Finch
                                                          region: "Southeastern US", 
                                                          rank: 8, 
                                                          percentageOfFeedersVisited: 74.17, 
                                                          meanGroupSizeWhenSeen: 3.38, 
                                                          feederwatchAbundanceIndex: 1.32},
-                                                       { season: "2008-2009", 
+                                                       { key: 3, season: "2008-2009", 
                                                          region: "South Central US", 
                                                          rank: 6, 
                                                          percentageOfFeedersVisited: 75.37, 
                                                          meanGroupSizeWhenSeen: 3.58, 
                                                          feederwatchAbundanceIndex: 1.23}],
-                                   abbreviations: [{ type: 'fourLetter', text: "HOFI"}, 
-                                                   { type: 'sixLetter', text: "CARMEX"}],
+                                   abbreviations: [{ key: 3, type: 'fourLetter', text: "HOFI"}, 
+                                                   { key: 4, type: 'sixLetter', text: "CARMEX"}],
                                    records: { bird: null,
                                               abbreviations: [],
                                               feederObservations: []}},
-          "Ruby-crowned Kinglet": { taxonomy: { genus: "Regulus", species: "calendula"},
-                                    feederObservations: [{ season: "2008-2009", 
+          "Ruby-crowned Kinglet": { key: 3, taxonomy: { genus: "Regulus", species: "calendula"},
+                                    feederObservations: [{ key: 4, season: "2008-2009", 
                                                            region: "South Central US", 
                                                            rank: 22, 
                                                            percentageOfFeedersVisited: 39.76, 
                                                            meanGroupSizeWhenSeen: 1.17, 
                                                            feederwatchAbundanceIndex: 0.14}],
-                                    abbreviations: [{ type: 'fourLetter', text: "RCKI"}, 
-                                                    { type: 'sixLetter', text: "REGCAL"}],
+                                    abbreviations: [{ key: 5, type: 'fourLetter', text: "RCKI"}, 
+                                                    { key: 6, type: 'sixLetter', text: "REGCAL"}],
                                     records: { bird: null,
                                                abbreviations: [],
                                                feederObservations: []}}},
   // Model definitions
   Abbreviation: SC.Record.extend({
-    //primaryKey:  'key',
+    primaryKey:  'key',
     bucket:      'abbreviation',
     type:        SC.Record.attr(String),
     text:        SC.Record.attr(String),
@@ -129,7 +129,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
   }),
 
   FeederObservation: SC.Record.extend({
-    //primaryKey:                 'key',
+    primaryKey:                 'key',
     bucket:                     'feederObservation',
     season:                     SC.Record.attr(String),
     region:                     SC.Record.attr(String),
@@ -160,7 +160,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
   }),
 
   Bird: SC.Record.extend({
-    //primaryKey:  'key',
+    primaryKey:  'key',
     bucket:      'bird',
     commonName:  SC.Record.attr(String),
     genus:       SC.Record.attr(String),
@@ -249,7 +249,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
   controllers: {},
 
   // For datasource that would be in data_sources dir
-  dataSource: SC.OrionNodeRiakDataSource.extend({
+  dataSource: SC.ONRWebsocketDataSource.extend({
     authSuccessCallback: function(){
       ONRTest.BirdApp.test();
     }
@@ -460,7 +460,6 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
               for (var i=0,len=feederObservations.length; i<len; i++){
                 console.log('PUSHING ' + feederObservations[i].get('region'));
                 //console.log('PUSHING ' + SC.inspect(feederObservations[i]));
-                debugger;
                 bird.get('feederObservations').pushObject(feederObservations[i]);
               }
 
@@ -529,6 +528,8 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
     //     will be created, for a total of 13 records.
     //
 
+    console.log('CALL TO test()');
+
     for (var commonName in this.data){
       this.controllers['feederObservation'].createFeederObservations(commonName);
     }
@@ -574,7 +575,7 @@ ONRTest.PollingApp = ONRTest.AppBase.create({
   queries: {},
   controllers: {},
 
-  dataSource: SC.OrionNodeRiakDataSource.extend({
+  dataSource: SC.ONRWebsocketDataSource.extend({
     authSuccessCallback: function(){
       ONRTest.PollingApp.test();
     }
@@ -608,8 +609,8 @@ ONRTest.start = function(){
   this.clients = {};
   //this.clients['FetchKinglet'] = ONRTest.BirdApp;
   //this.clients['FetchFinch'] = ONRTest.BirdApp;
-  //this.clients['BirdApp'] = ONRTest.BirdApp;
-  this.clients['PollingApp'] = ONRTest.PollingApp;
+  this.clients['BirdApp'] = ONRTest.BirdApp;
+  //this.clients['PollingApp'] = ONRTest.PollingApp;
 
   for (var clientName in ONRTest.clients){
     ONRTest.clients[clientName].start();
