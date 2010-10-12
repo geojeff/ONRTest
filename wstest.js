@@ -31,7 +31,7 @@
 // ONRTest is used as a global container.
 var ONRTest = SC.Object.create();
 
-// ONRTest.BirdAppBase is here because if ONRTest.BirdApp = SC.Object.extend(.. 
+// ONRTest.AppBase is here because if ONRTest.BirdApp = SC.Object.extend(.. 
 // is used, the datasource will not instantiate properly. But if we use this 
 // base object, the instantiation works...
 ONRTest.AppBase = SC.Object.extend({
@@ -140,15 +140,16 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
     bird: SC.Record.toOne("ONRTest.BirdApp.Bird", 
                           { inverse: "feederObservations",
-                            isMaster: NO })
+                            isMaster: NO }),
 
-//    // A callback firing on bird !=== undefined
-//    _birdObs: function(){ 
-//      var bird = this.get('bird'); 
-//      if (bird){ 
-//        ONRTest.BirdApp.birdSetCall(this.get('storeKey')); 
-//      }
-//    }.observes('bird'),
+    // A callback firing on bird !== undefined
+    _birdObs: function(){ 
+      var bird = this.get('bird'); 
+      console.log('XXXXXXXXXXXXXXXXXXXXXXXXX ' + this.get('storeKey'));
+      if (bird){ 
+        ONRTest.BirdApp.birdSetCall(this.get('storeKey')); 
+      }
+    }.observes('bird')
 
 //    // A callback firing on status === READY_CLEAN
 //    _statusObs: function(){ 
@@ -314,6 +315,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
     var initDS = this.store._getDataSource(); 
 
     // Call auth. The data source contains a callback to the test() function.
+    // test() will initiate data creation steps. 
     this.store.dataSource.connect(ONRTest.BirdApp.store,function(){ 
       ONRTest.BirdApp.store.dataSource.authRequest("test","test");
     });
@@ -347,13 +349,19 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
     // Create the controllers.
     this.controllers['feederObservation'] = SC.ArrayController.create({
-      generateCheckFeederObservations: function(commonName,feederObservation){
+      // This is a closure, that will create an unnamed function, for checking
+      // for completion of feederObservations records. The generator function
+      // has commonName, feederObservation as passed-in variables which are in 
+      // scope for the generated function. The 'var me = this;' line sets me so
+      // that there is also a reference to the controller within the generated
+      // function.
+      generateCheckFeederObservationsFunction: function(commonName,feederObservation){
         var me = this;
         return function(val){
           console.log('checking FeederObservations ' + commonName + '/' + val);
           if (val & SC.Record.READY_CLEAN){
-            me._tmpRecordCache[commonName].push(feederObservation);
-            ONRTest.BirdApp.data[commonName]['records']['feederObservations'].push(feederObservation);
+            me._tmpRecordCache[commonName].pushObject(feederObservation);
+            ONRTest.BirdApp.data[commonName]['records']['feederObservations'].pushObject(feederObservation);
             me._tmpRecordCacheCount[commonName]--;
             console.log('checking FeederObservations ' + commonName + '/' + me._tmpRecordCacheCount[commonName]);
             if (me._tmpRecordCacheCount[commonName] === 0){
@@ -384,25 +392,36 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
             "meanGroupSizeWhenSeen":      feederObservations[i].meanGroupSizeWhenSeen,
             "feederwatchAbundanceIndex":  feederObservations[i].feederwatchAbundanceIndex});
 
-          feederObservation.addFiniteObserver('status',this,this.generateCheckFeederObservations(commonName,feederObservation),this);
+          // this.generateCheckFeederObservationsFunction is provided to create the function that
+          // checks for READY_CLEAN for all feederObservations for a given bird. When all such 
+          // feederObservations are READY_CLEAN, in turn, createAbbreviations(), the next step in 
+          // the data creation scheme, is fired.
+          feederObservation.addFiniteObserver('status',this,this.generateCheckFeederObservationsFunction(commonName,feederObservation),this);
 
           ONRTest.BirdApp.store.commitRecords();
         }
       },
 
+      // _tmpRecordCache are for feederObservations that have been created. _tmpRecordCacheCount is
+      // initially set to the number of feederObservations that should be created for the given bird.
+      // Then, as feederObservations are created, the count is decremented. The count is checked, so
+      // that, when 0, the next step in the data creation scheme is fired (createAbbreviations()).
       _tmpRecordCache: {},
       _tmpRecordCacheCount: {}
 
     });
         
     this.controllers['abbreviation'] = SC.ArrayController.create({
-      generateCheckAbbreviations: function(commonName,abbreviation){
+      // See comment above about the creation of a closure -- same logic applies here, except
+      // for abbreviations this time.  Once abbreviation records for a bird have been created,
+      // the final step, creation of the actual bird record, is fired.
+      generateCheckAbbreviationsFunction: function(commonName,abbreviation){
         var me = this;
         return function(val){
           console.log('checking Abbreviations ' + commonName);
           if (val & SC.Record.READY_CLEAN){
-            me._tmpRecordCache[commonName].push(abbreviation);
-            ONRTest.BirdApp.data[commonName]['records']['abbreviations'].push(abbreviation);
+            me._tmpRecordCache[commonName].pushObject(abbreviation);
+            ONRTest.BirdApp.data[commonName]['records']['abbreviations'].pushObject(abbreviation);
             me._tmpRecordCacheCount[commonName]--;
             if (me._tmpRecordCacheCount[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
@@ -431,22 +450,44 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
           ONRTest.BirdApp.store.commitRecords();
 
-          abbreviation.addFiniteObserver('status',this,this.generateCheckAbbreviations(commonName,abbreviation),this);
+          // this.generateCheckAbbreviationsFunction() is provided here to fire createBird as the final
+          // step in data creation, which will set relations between feederObservations, abbreviations,
+          // and the bird after the bird record has been committed.
+          abbreviation.addFiniteObserver('status',this,this.generateCheckAbbreviationsFunction(commonName,abbreviation),this);
         }
       },
 
+      // See comment above, in the feederObservations controller, about the use of _tmpRecordCache,Count.
       _tmpRecordCache: {},
       _tmpRecordCacheCount: {}
 
     });
 
+
+// [5:06pm] <geojeff> i see where i was trying to do that very thing, with an observer function defined in the model to fire when a relation is set
+// [5:06pm] <geojeff> but it doesn't fire
+// [5:07pm] <mauritslamers> afaik you shouldn't do that stuff inside a model, but outside
+// [5:08pm] <geojeff> mauritslamers: probably -- the this looks suspicious :)
+// [5:08pm] <mauritslamers> geojeff: so you create a new record, let the store commit the results and add a finite observer to wait for the result to be true
+// [5:08pm] <mauritslamers> result == true => record status & SC.Record.READY_CLEAN
+// [5:09pm] <mauritslamers> when it is, get the object from the store, assign the relations and do a commit again
+// [5:09pm] <geojeff> actually, the observer function does fire from there, but it doesn't get the observed value
+// [5:09pm] <mauritslamers> important: when there are no relations yet, you shouldn't use pushObject
+// [5:09pm] <mauritslamers> !!
+// [5:10pm] <mauritslamers> because it has no meaning
+// [5:10pm] <geojeff> yeah, i think i need to draw this out on paper :0
+// [5:10pm] <geojeff> :)
+// [5:10pm] <geojeff> dang :0
+// [5:10pm] <mauritslamers> so, in this case you probably need to create an array with SC.Record instances, (having ids on them) and set that array to the relation
+    
     this.controllers['bird'] = SC.ArrayController.create({
-      generateSetRelations: function(commonName){
+      // See comments in the other controllers about the use of closures.
+      generateSetRelationsFunction: function(commonName){
         var me = this;
         return function(val){
           if (val & SC.Record.READY_CLEAN){
             console.log('setting relations for Bird ' + commonName);
-            me._tmpRecordCache[commonName].push(bird);
+            me._tmpRecordCache[commonName].pushObject(bird);
             me._tmpRecordCacheCount[commonName]--;
             if (me._tmpRecordCacheCount[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
@@ -457,18 +498,21 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
               var feederObservations = ONRTest.BirdApp.data[commonName]['records']['feederObservations'];
               var feederObservationsInBird = bird.get('feederObservations');
               console.log('HAVE BIRD ' + bird.get('commonName'));
-              for (var i=0,len=feederObservations.length; i<len; i++){
-                console.log('PUSHING ' + feederObservations[i].get('region'));
-                //console.log('PUSHING ' + SC.inspect(feederObservations[i]));
-                bird.get('feederObservations').pushObject(feederObservations[i]);
-              }
+              console.log('FOIB ' + SC.inspect(feederObservationsInBird));
+              feederObservationsInBird.set(feederObservations);
+              //for (var i=0,len=feederObservations.length; i<len; i++){
+              //  console.log('PUSHING ' + feederObservations[i].get('region'));
+              //  //console.log('PUSHING ' + SC.inspect(feederObservations[i]));
+              //  bird.get('feederObservations').pushObject(feederObservations[i]);
+              //}
 
               var abbreviations = ONRTest.BirdApp.data[commonName]['records']['abbreviations'];
               var abbreviationsInBird = bird.get('abbreviations');
-              for (i=0,len=abbreviations.length; i<len; i++){
-                console.log('PUSHING ' + abbreviations[i].get('text'));
-                bird.get('abbreviations').pushObject(abbreviations[i]);
-              }
+              abbreviationsInBird.set(abbreviations);
+              //for (i=0,len=abbreviations.length; i<len; i++){
+                //console.log('PUSHING ' + abbreviations[i].get('text'));
+                //bird.get('abbreviations').pushObject(abbreviations[i]);
+              //}
 
               ONRTest.BirdApp.store.commitRecords();
 
@@ -499,7 +543,9 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
         ONRTest.BirdApp.data[commonName]['records']['bird'] = bird;
 
-        bird.addFiniteObserver('status',this,this.generateSetRelations(commonName),this);
+        // The bird record has been created, as well as its feederObservations and 
+        // abbreviations, so all that is left is setting relations between them.
+        bird.addFiniteObserver('status',this,this.generateSetRelationsFunction(commonName),this);
 
         return bird;
       },
@@ -520,7 +566,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
     // until the abbreviation and feederObservation records are READY_CLEAN 
     // before creating the master bird record and setting relations.
     //
-    // At one point in development, this simple list of records was kept, 
+    // At one point in development, a simple list of records was kept, 
     // to know when all have been created, before continuing with test 
     // operations. This was replaced by a system based on callbacks.
     //
@@ -530,6 +576,8 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
     console.log('CALL TO test()');
 
+    // Feeder observations first, then the other creation calls will fire in
+    // succession, waiting on READY_CLEAN for dependencies.
     for (var commonName in this.data){
       this.controllers['feederObservation'].createFeederObservations(commonName);
     }
@@ -537,25 +585,32 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
   checkBirds: function(){
     console.log('in CHECKBIRDS');
-    for (var commonName in ONRTest.BirdApp.data){
-      var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
-      console.log(bird.get('commonName'));
-      console.log('  Abbreviations:');
-      var abbreviations = bird.get('abbreviations');
-      console.log(abbreviations.length());
-      for (var i=0,len=abbreviations.length(); i<len; i++){
-        if (abbreviations[i]){
-          console.log('    ' + abbreviations[i].get('text'));
-        }
-      }
-      console.log('  Feeder Observations:');
-      var feederObservations = bird.get('feederObservations');
-      for (i=0,len=feederObservations.length(); i<len; i++){
-        if (feederObservations[i]){
-          console.log('    ' + feederObservations[i].get('region'));
-        }
-      }
-    }
+    var birds = ONRTest.BirdApp.store.find(ONRTest.BirdApp.queries['bird']['all']);
+
+    console.log('DDDDDDDDDONE ' + birds.get('length'));
+    birds.forEach(function(bird) {
+      console.log(bird.get('feederObservations').get('length'));
+    });
+    
+//    for (var commonName in ONRTest.BirdApp.data){
+//      var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
+//      console.log(bird.get('commonName'));
+//      console.log('  Abbreviations:');
+//      var abbreviations = bird.get('abbreviations');
+//      console.log(abbreviations.length());
+//      for (var i=0,len=abbreviations.length(); i<len; i++){
+//        if (abbreviations[i]){
+//          console.log('    ' + abbreviations[i].get('text'));
+//        }
+//      }
+//      console.log('  Feeder Observations:');
+//      var feederObservations = bird.get('feederObservations');
+//      for (i=0,len=feederObservations.length(); i<len; i++){
+//        if (feederObservations[i]){
+//          console.log('    ' + feederObservations[i].get('region'));
+//        }
+//      }
+//    }
     ONRTest.BirdApp.finish();
   },
 
