@@ -254,6 +254,9 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
   // For controllers that would be in controllers dir
   controllers: {},
 
+  // For views that would be in resources (english.lproj) dir or views dir
+  views: {},
+
   // For datasource that would be in data_sources dir
   dataSource: SC.ONRWebsocketDataSource.extend({
     authSuccessCallback: function(){
@@ -534,8 +537,77 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
       _tmpRecordCacheCount: {}
 
     });
+
+    // Add views
+//    this.views['birdEntryPane'] = SC.SheetPane.create({
+//      layout: { width:400, height: 200, centerX: 0 },
+//      contentView: SC.View.extend({
+//         layout: { top: 0, right: 0, bottom: 0, left: 700 },
+//         childViews: "headerLabel commonNameLabel genusLabel speciesLabel commonNameInput genusInput speciesInput cancelButton saveButton".w(),
+//   
+//         headerLabel: SC.LabelView.design({
+//            layout: { height: 25, width: 250, bottom: 150, centerX: 500 },
+//            textAlign: SC.ALIGN_CENTER,
+//            value: 'ONRTest Bird App Simulator'
+//         }),
+//  
+//         commonNameLabel: SC.LabelView.design({
+//            layout: { height: 25, width: 150, bottom: 100, centerX: 500 },
+//            textAlign: SC.ALIGN_CENTER,
+//            value: 'Common name:'
+//         }),
+//  
+//         genusLabel: SC.LabelView.design({
+//            layout: { height: 25, width: 150, bottom: 100, centerX: 600 },
+//            textAlign: SC.ALIGN_CENTER,
+//            value: 'Genus:'
+//         }),               
+//         
+//         speciesLabel: SC.LabelView.design({
+//            layout: { height: 25, width: 150, bottom: 100, centerX: 700 },
+//            textAlign: SC.ALIGN_CENTER,
+//            value: 'Species:'
+//         }),               
+//         
+//         commonNameInput: SC.TextFieldView.design({
+//           layout: { height: 25, width: 150, bottom: 80, centerX: 500 },
+//           hint: 'Common name...',
+//           isPassword: NO,
+//           isTextArea: NO
+//         }),
+//         
+//         genusInput: SC.TextFieldView.design({
+//           layout: { height: 25, width: 150, bottom: 80, centerX: 600 },
+//           hint: 'Genus...',
+//           isPassword: NO,
+//           isTextArea: NO
+//         }),
+//         
+//         speciesInput: SC.TextFieldView.design({
+//           layout: { height: 25, width: 150, bottom: 80, centerX: 700 },
+//           hint: 'Species...',
+//           isPassword: NO,
+//           isTextArea: NO
+//         }),
+//         
+//         cancelButton: SC.ButtonView.design({
+//           layout: { height: 25, width: 100, bottom: 50, centerX: 550},
+//           title: 'Close',
+//           action: 'closeLoginPane',
+//           target: this
+//         }),
+//         
+//         saveButton: SC.ButtonView.design({
+//           layout: { height: 25, width: 100, bottom: 50, centerX: 50 },
+//           title: 'Save',
+//           action: 'attemptSaveBird',
+//           target: this,
+//           isDefault: YES
+//         })
+//      })
+//    });
   },
-         
+   
   test: function(){
     //
     // Each item in the data contains information about a single
@@ -555,6 +627,9 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
     //
 
     console.log('CALL TO test()');
+
+//    // Show the bird entry pane [EXPERIMENTAL -- layout needs work]
+//    this.views['birdEntryPane'].append();
 
     // Feeder observations first, then the other creation calls will fire in
     // succession, waiting on READY_CLEAN for dependencies.
