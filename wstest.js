@@ -482,7 +482,9 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
               var feederObservationsInBird = bird.get('feederObservations');
               console.log('HAVE BIRD ' + bird.get('commonName'));
               console.log('FOIB ' + SC.inspect(feederObservationsInBird));
-              feederObservationsInBird.set(feederObservations);
+              console.log('FO ' + SC.inspect(feederObservations));
+              feederObservationsInBird.pushObjects(feederObservations);
+              //feederObservationsInBird.recordPropertyDidChange();
               //for (var i=0,len=feederObservations.length; i<len; i++){
               //  console.log('PUSHING ' + feederObservations[i].get('region'));
               //  //console.log('PUSHING ' + SC.inspect(feederObservations[i]));
@@ -491,7 +493,8 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
               var abbreviations = ONRTest.BirdApp.data[commonName]['records']['abbreviations'];
               var abbreviationsInBird = bird.get('abbreviations');
-              abbreviationsInBird.set(abbreviations);
+              abbreviationsInBird.pushObjects(abbreviations);
+              //abbreviationsInBird.recordPropertyDidChange();
               //for (i=0,len=abbreviations.length; i<len; i++){
                 //console.log('PUSHING ' + abbreviations[i].get('text'));
                 //bird.get('abbreviations').pushObject(abbreviations[i]);
@@ -526,8 +529,9 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
         ONRTest.BirdApp.data[commonName]['records']['bird'] = bird;
 
-        // The bird record has been created, as well as its feederObservations and 
-        // abbreviations, so all that is left is setting relations between them.
+        // The bird record has been created, and its feederObservations and 
+        // abbreviations, so all that is left is the setting of relations between them,
+        // once the bird record comes back READY_CLEAN.
         bird.addFiniteObserver('status',this,this.generateSetRelationsFunction(commonName),this);
 
         return bird;
@@ -570,30 +574,30 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
     console.log('in CHECKBIRDS');
     var birds = ONRTest.BirdApp.store.find(ONRTest.BirdApp.queries['bird']['all']);
 
-    console.log('DDDDDDDDDONE ' + birds.get('length'));
-    birds.forEach(function(bird) {
-      console.log(bird.get('feederObservations').get('length'));
-    });
+//    console.log('DDDDDDDDDONE ' + birds.get('length'));
+//    birds.forEach(function(bird) {
+//      console.log(bird.get('feederObservations').get('length'));
+//    });
     
-//    for (var commonName in ONRTest.BirdApp.data){
-//      var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
-//      console.log(bird.get('commonName'));
-//      console.log('  Abbreviations:');
-//      var abbreviations = bird.get('abbreviations');
-//      console.log(abbreviations.length());
-//      for (var i=0,len=abbreviations.length(); i<len; i++){
-//        if (abbreviations[i]){
-//          console.log('    ' + abbreviations[i].get('text'));
-//        }
-//      }
-//      console.log('  Feeder Observations:');
-//      var feederObservations = bird.get('feederObservations');
-//      for (i=0,len=feederObservations.length(); i<len; i++){
-//        if (feederObservations[i]){
-//          console.log('    ' + feederObservations[i].get('region'));
-//        }
-//      }
-//    }
+    for (var commonName in ONRTest.BirdApp.data){
+      var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
+      console.log(bird.get('commonName'));
+      console.log('  Abbreviations:');
+      var abbreviations = bird.get('abbreviations');
+      console.log(abbreviations.length());
+      for (var i=0,len=abbreviations.length(); i<len; i++){
+        if (abbreviations[i]){
+          console.log('    ' + abbreviations[i].get('text'));
+        }
+      }
+      console.log('  Feeder Observations:');
+      var feederObservations = bird.get('feederObservations');
+      for (i=0,len=feederObservations.length(); i<len; i++){
+        if (feederObservations[i]){
+          console.log('    ' + feederObservations[i].get('region'));
+        }
+      }
+    }
     ONRTest.BirdApp.finish();
   },
 
