@@ -140,16 +140,22 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
     bird: SC.Record.toOne("ONRTest.BirdApp.Bird", 
                           { inverse: "feederObservations",
-                            isMaster: NO }),
+                            isMaster: NO })
+  }),
 
-    // A callback firing on bird !== undefined
-    _birdObs: function(){ 
-      var bird = this.get('bird'); 
-      console.log('XXXXXXXXXXXXXXXXXXXXXXXXX ' + this.get('storeKey'));
-      if (bird){ 
-        ONRTest.BirdApp.birdSetCall(this.get('storeKey')); 
-      }
-    }.observes('bird')
+    // A callback firing on bird changes
+//    _birdObs: function(){ 
+//      var bird = this.get('bird'); 
+//      var storeKey = this.get('storeKey');
+//      console.log('storeKey ' + storeKey);
+//      console.log('recordType ' + SC.Store.recordTypeFor(storeKey));
+//      console.log('id ' + ONRTest.BirdApp.store.idFor(storeKey));
+//      console.log('statusString ' + ONRTest.BirdApp.store.statusString(storeKey));
+//      console.log('rec ' + ONRTest.BirdApp.store.materializeRecord(storeKey));
+//      if (bird){ 
+//        ONRTest.BirdApp.birdSetCall(this.get('storeKey')); 
+//      }
+//    }.observes('bird')
 
 //    // A callback firing on status === READY_CLEAN
 //    _statusObs: function(){ 
@@ -158,7 +164,6 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 //        ONRTest.BirdApp.readyCall(this.get('storeKey')); 
 //      }
 //    }.observes('status')
-  }),
 
   Bird: SC.Record.extend({
     primaryKey:  'key',
@@ -177,6 +182,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
                                          { inverse: "bird", isMaster: YES }),
     feederObservations: SC.Record.toMany("ONRTest.BirdApp.FeederObservation", 
                                          { inverse: "bird", isMaster: YES })
+  }),
 
 //    _loadedObs: function(){
 //      console.log('ISLOADED: ' + this.get('isLoaded'));
@@ -197,51 +203,50 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 //      }
 //    }.observes('status')
 //
-  }),
 
   // birdSetCall will fire when the bird reference is set in an abbreviation
   // or feederObservation.
-  birdSetCall: function(storeKey){
-    var recordType = SC.Store.recordTypeFor(storeKey);
-    var id = ONRTest.BirdApp.store.idFor(storeKey);
-    var statusString = ONRTest.BirdApp.store.statusString(storeKey);
-    var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
-    var bird = rec.get('bird');
-    console.log('BIRD SET ' + recordType + '/' 
-                            + id + '/' 
-                            + statusString + '/' 
-                            + bird.get('commonName'));
-  },
+//  birdSetCall: function(storeKey){
+//    var recordType = SC.Store.recordTypeFor(storeKey);
+//    var id = ONRTest.BirdApp.store.idFor(storeKey);
+//    var statusString = ONRTest.BirdApp.store.statusString(storeKey);
+//    var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
+//    var bird = rec.get('bird');
+//    console.log('BIRD SET ' + recordType + '/' 
+//                            + id + '/' 
+//                            + statusString + '/' 
+//                            + bird.get('commonName'));
+//  },
 
   // readyCall will fire when the status of any record changes to READY_CLEAN.
   //   (Trying to get a look at relations...)
-  readyCall: function(storeKey){
-    var recordType = SC.Store.recordTypeFor(storeKey);
-    var id = ONRTest.BirdApp.store.idFor(storeKey);
-    var statusString = ONRTest.BirdApp.store.statusString(storeKey);
-    var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
-    console.log(recordType + '/' + id + '/' + statusString);
-    //console.log(JSON.stringify(ONRTest.BirdApp.store.readDataHash(storeKey)));
-    var recordCount = ONRTest.BirdApp.get('recordCount');
-    ONRTest.BirdApp.set('recordCount', recordCount+1);
-    if (recordType === ONRTest.BirdApp.Bird){
-      console.log('ABBREVIATIONS');
-      var abbreviations = rec.get('abbreviations');
-      for (var i=0,len=abbreviations.length; i<len; i++){
-        console.log(abbreviations[i].get('text'));
-      }
-      var feederObservations = rec.get('feederObservations');
-      console.log('FEEDER OBSERVATIONS');
-      for (i=0,len=feederObservations.length; i<len; i++){
-        console.log(feederObservations[i].get('region'));
-      }
-    }
-    else {
-      console.log('BIRD');
-      var bird = rec.get('bird');
-      //if (bird) console.log(bird.get('commonName'));
-    }
-  },
+//  readyCall: function(storeKey){
+//    var recordType = SC.Store.recordTypeFor(storeKey);
+//    var id = ONRTest.BirdApp.store.idFor(storeKey);
+//    var statusString = ONRTest.BirdApp.store.statusString(storeKey);
+//    var rec = ONRTest.BirdApp.store.materializeRecord(storeKey);
+//    console.log(recordType + '/' + id + '/' + statusString);
+//    //console.log(JSON.stringify(ONRTest.BirdApp.store.readDataHash(storeKey)));
+//    var recordCount = ONRTest.BirdApp.get('recordCount');
+//    ONRTest.BirdApp.set('recordCount', recordCount+1);
+//    if (recordType === ONRTest.BirdApp.Bird){
+//      console.log('ABBREVIATIONS');
+//      var abbreviations = rec.get('abbreviations');
+//      for (var i=0,len=abbreviations.length; i<len; i++){
+//        console.log(abbreviations[i].get('text'));
+//      }
+//      var feederObservations = rec.get('feederObservations');
+//      console.log('FEEDER OBSERVATIONS');
+//      for (i=0,len=feederObservations.length; i<len; i++){
+//        console.log(feederObservations[i].get('region'));
+//      }
+//    }
+//    else {
+//      console.log('BIRD');
+//      var bird = rec.get('bird');
+//      //if (bird) console.log(bird.get('commonName'));
+//    }
+//  },
 
   // For storing queries that would be defined in core.js
   queries: {},
@@ -358,12 +363,13 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
       generateCheckFeederObservationsFunction: function(commonName,feederObservation){
         var me = this;
         return function(val){
-          console.log('checking FeederObservations ' + commonName + '/' + val);
+          //console.log('checking FeederObservations ' + commonName + '/' + val);
           if (val & SC.Record.READY_CLEAN){
             me._tmpRecordCache[commonName].pushObject(feederObservation);
             ONRTest.BirdApp.data[commonName]['records']['feederObservations'].pushObject(feederObservation);
+            //console.log(SC.inspect(ONRTest.BirdApp.data[commonName]['records']['feederObservations']));
             me._tmpRecordCacheCount[commonName]--;
-            console.log('checking FeederObservations ' + commonName + '/' + me._tmpRecordCacheCount[commonName]);
+            //console.log('checking FeederObservations ' + commonName + '/' + me._tmpRecordCacheCount[commonName]);
             if (me._tmpRecordCacheCount[commonName] === 0){
               delete me._tmpRecordCache[commonName]; // delete the old contents
               delete me._tmpRecordCacheCount[commonName];
@@ -376,7 +382,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
       },
  
       createFeederObservations: function(commonName){
-        console.log('createFeederObservations ' + commonName);
+        //console.log('createFeederObservations ' + commonName);
         var feederObservations = ONRTest.BirdApp.data[commonName]['feederObservations'];
     
         this._tmpRecordCache[commonName] = [];
@@ -385,6 +391,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
         for (var i=0,len=feederObservations.length; i<len; i++){
           var feederObservation;
           feederObservation = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.FeederObservation, {
+            "key":                       feederObservations[i].key,
             "season":                     feederObservations[i].season,
             "region":                     feederObservations[i].region,
             "rank":                       feederObservations[i].rank,
@@ -418,7 +425,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
       generateCheckAbbreviationsFunction: function(commonName,abbreviation){
         var me = this;
         return function(val){
-          console.log('checking Abbreviations ' + commonName);
+          //console.log('checking Abbreviations ' + commonName);
           if (val & SC.Record.READY_CLEAN){
             me._tmpRecordCache[commonName].pushObject(abbreviation);
             ONRTest.BirdApp.data[commonName]['records']['abbreviations'].pushObject(abbreviation);
@@ -435,7 +442,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
       },
  
       createAbbreviations: function(commonName){
-        console.log('createAbbreviations ' + commonName);
+        //console.log('createAbbreviations ' + commonName);
         var abbreviations = ONRTest.BirdApp.data[commonName]['abbreviations'];
     
         this._tmpRecordCache[commonName] = [];
@@ -444,6 +451,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
         for (var i=0,len=abbreviations.length; i<len; i++){
           var abbreviation;
           abbreviation = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.Abbreviation, {
+            "key": abbreviations[i].key,
             "type": abbreviations[i].type,
             "text": abbreviations[i].text
           });
@@ -469,7 +477,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
         var me = this;
         return function(val){
           if (val & SC.Record.READY_CLEAN){
-            console.log('setting relations for Bird ' + commonName);
+            //console.log('setting relations for Bird ' + commonName);
             me._tmpRecordCache[commonName].pushObject(bird);
             me._tmpRecordCacheCount[commonName]--;
             if (me._tmpRecordCacheCount[commonName] === 0){
@@ -480,30 +488,13 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
               var feederObservations = ONRTest.BirdApp.data[commonName]['records']['feederObservations'];
               var feederObservationsInBird = bird.get('feederObservations');
-              console.log('HAVE BIRD ' + bird.get('commonName'));
-              console.log('FOIB ' + SC.inspect(feederObservationsInBird));
-              console.log('FO ' + SC.inspect(feederObservations));
               feederObservationsInBird.pushObjects(feederObservations);
-              //feederObservationsInBird.recordPropertyDidChange();
-              //for (var i=0,len=feederObservations.length; i<len; i++){
-              //  console.log('PUSHING ' + feederObservations[i].get('region'));
-              //  //console.log('PUSHING ' + SC.inspect(feederObservations[i]));
-              //  bird.get('feederObservations').pushObject(feederObservations[i]);
-              //}
 
               var abbreviations = ONRTest.BirdApp.data[commonName]['records']['abbreviations'];
               var abbreviationsInBird = bird.get('abbreviations');
               abbreviationsInBird.pushObjects(abbreviations);
-              //abbreviationsInBird.recordPropertyDidChange();
-              //for (i=0,len=abbreviations.length; i<len; i++){
-                //console.log('PUSHING ' + abbreviations[i].get('text'));
-                //bird.get('abbreviations').pushObject(abbreviations[i]);
-              //}
 
               ONRTest.BirdApp.store.commitRecords();
-
-              //ONRTest.BirdApp.checkBirds();
-              setTimeout(ONRTest.BirdApp.checkBirds, 10000);
             }
             return YES;
           }
@@ -512,7 +503,8 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
       },
  
       createBird: function(commonName){
-        console.log('createBird ' + commonName);
+        //console.log('createBird ' + commonName);
+        var key = ONRTest.BirdApp.data[commonName]['key'];
         var taxonomy = ONRTest.BirdApp.data[commonName]['taxonomy'];
 
         this._tmpRecordCache[commonName] = [];
@@ -520,6 +512,7 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
             
         var bird;
         bird = ONRTest.BirdApp.store.createRecord(ONRTest.BirdApp.Bird, {
+          "key":       key,
           "commonName": commonName,
           "genus":      taxonomy.genus,
           "species":    taxonomy.species
@@ -568,37 +561,30 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
     for (var commonName in this.data){
       this.controllers['feederObservation'].createFeederObservations(commonName);
     }
+
+    setTimeout(ONRTest.BirdApp.checkBirds, 10000);
   },
 
   checkBirds: function(){
-    console.log('in CHECKBIRDS');
+    console.log('CHECKBIRDS');
     var birds = ONRTest.BirdApp.store.find(ONRTest.BirdApp.queries['bird']['all']);
 
-//    console.log('DDDDDDDDDONE ' + birds.get('length'));
-//    birds.forEach(function(bird) {
-//      console.log(bird.get('feederObservations').get('length'));
-//    });
-    
-    for (var commonName in ONRTest.BirdApp.data){
-      var bird = ONRTest.BirdApp.data[commonName]['records']['bird'];
-      console.log(bird.get('commonName'));
-      console.log('  Abbreviations:');
-      var abbreviations = bird.get('abbreviations');
-      console.log(abbreviations.length());
-      for (var i=0,len=abbreviations.length(); i<len; i++){
-        if (abbreviations[i]){
-          console.log('    ' + abbreviations[i].get('text'));
-        }
-      }
-      console.log('  Feeder Observations:');
-      var feederObservations = bird.get('feederObservations');
-      for (i=0,len=feederObservations.length(); i<len; i++){
-        if (feederObservations[i]){
-          console.log('    ' + feederObservations[i].get('region'));
-        }
-      }
-    }
-    ONRTest.BirdApp.finish();
+    birds.forEach(function(bird) {
+      console.log(bird.get('commonName'), bird.get('genus'), bird.get('species'));
+      bird.get('feederObservations').forEach(function(fo) {
+        console.log('    feeder observation:');
+        console.log('        season:                     ' + fo.get('season'));
+        console.log('        region:                     ' + fo.get('region'));
+        console.log('        rank:                       ' + fo.get('rank'));
+        console.log('        percentageOfFeedersVisited: ' + fo.get('percentageOfFeedersVisited'));
+        console.log('        meanGroupSizeWhenSeen:      ' + fo.get('meanGroupSizeWhenSeen'));
+        console.log('        feederwatchAbundanceIndex:  ' + fo.get('feederwatchAbundanceIndex'));
+      });
+
+      bird.get('abbreviations').forEach(function(a) {
+        console.log('    abbreviation: ' + a.get('text'));
+      });
+    });
   },
 
   // 
