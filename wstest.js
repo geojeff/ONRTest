@@ -463,23 +463,6 @@ ONRTest.BirdApp = ONRTest.AppBase.create({
 
     });
 
-
-// [5:06pm] <geojeff> i see where i was trying to do that very thing, with an observer function defined in the model to fire when a relation is set
-// [5:06pm] <geojeff> but it doesn't fire
-// [5:07pm] <mauritslamers> afaik you shouldn't do that stuff inside a model, but outside
-// [5:08pm] <geojeff> mauritslamers: probably -- the this looks suspicious :)
-// [5:08pm] <mauritslamers> geojeff: so you create a new record, let the store commit the results and add a finite observer to wait for the result to be true
-// [5:08pm] <mauritslamers> result == true => record status & SC.Record.READY_CLEAN
-// [5:09pm] <mauritslamers> when it is, get the object from the store, assign the relations and do a commit again
-// [5:09pm] <geojeff> actually, the observer function does fire from there, but it doesn't get the observed value
-// [5:09pm] <mauritslamers> important: when there are no relations yet, you shouldn't use pushObject
-// [5:09pm] <mauritslamers> !!
-// [5:10pm] <mauritslamers> because it has no meaning
-// [5:10pm] <geojeff> yeah, i think i need to draw this out on paper :0
-// [5:10pm] <geojeff> :)
-// [5:10pm] <geojeff> dang :0
-// [5:10pm] <mauritslamers> so, in this case you probably need to create an array with SC.Record instances, (having ids on them) and set that array to the relation
-    
     this.controllers['bird'] = SC.ArrayController.create({
       // See comments in the other controllers about the use of closures.
       generateSetRelationsFunction: function(commonName){
